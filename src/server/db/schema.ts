@@ -34,18 +34,17 @@ const User = sequelize.define('User', {
     },
 });
 
-
 const Game = sequelize.define('Game', {
     id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
         primaryKey: true,
     },
-    host_id: { // user_id
+    host_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
     },
-    status: { // waiting, playing, finished
+    status: {
         type: DataTypes.ENUM(
             GameStatus.WAITING, 
             GameStatus.PLAYING, 
@@ -53,7 +52,7 @@ const Game = sequelize.define('Game', {
         ),
         allowNull: false,
     },
-    current_turn: { // 1, 2, 3, 4
+    current_turn: {
         type: DataTypes.INTEGER,
         allowNull: true,
     },
@@ -67,9 +66,8 @@ const Game = sequelize.define('Game', {
         allowNull: false,
         defaultValue: DataTypes.NOW,
     },
-}); 
-
-Game.hasOne(User, { foreignKey: 'host_id' });
+});
+Game.belongsTo(User, { foreignKey: 'host_id' });
 
 const GamePlayer = sequelize.define('GamePlayer', {
     id: {
@@ -80,14 +78,14 @@ const GamePlayer = sequelize.define('GamePlayer', {
     game_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
-    },  
+    },
     user_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
     },
     seat_number: { // 1, 2, 3, 4
         type: DataTypes.INTEGER,
-        allowNull: false,           
+        allowNull: false,
     },
     created_at: {
         type: DataTypes.DATE,
@@ -101,9 +99,8 @@ const GamePlayer = sequelize.define('GamePlayer', {
     },
 });
 
-GamePlayer.hasOne(User, { foreignKey: 'user_id' });
-GamePlayer.hasOne(Game, { foreignKey: 'game_id' });
-
+GamePlayer.belongsTo(User, { foreignKey: 'user_id' });
+GamePlayer.belongsTo(Game, { foreignKey: 'game_id' });
 
 const Chatlog = sequelize.define('Chatlog', {
     id: {
@@ -130,8 +127,8 @@ const Chatlog = sequelize.define('Chatlog', {
     },
 });
 
-Chatlog.hasOne(User, { foreignKey: 'user_id' });
-Chatlog.hasOne(Game, { foreignKey: 'game_id' });
+Chatlog.belongsTo(User, { foreignKey: 'user_id' });
+Chatlog.belongsTo(Game, { foreignKey: 'game_id' });
 
 const Friendship = sequelize.define('Friendship', {
     id: {
@@ -153,13 +150,13 @@ const Friendship = sequelize.define('Friendship', {
             FriendshipStatus.ACCEPTED, 
             FriendshipStatus.REJECTED
         ),
-        allowNull: false,   
+        allowNull: false,
     },
     created_at: {
         type: DataTypes.DATE,
         allowNull: false,
         defaultValue: DataTypes.NOW,
-    },  
+    },
     updated_at: {
         type: DataTypes.DATE,
         allowNull: false,
@@ -167,8 +164,8 @@ const Friendship = sequelize.define('Friendship', {
     },
 });
 
-Friendship.hasOne(User, { foreignKey: 'user_id' });
-Friendship.hasOne(User, { foreignKey: 'friend_id' });
+Friendship.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
+Friendship.belongsTo(User, { foreignKey: 'friend_id', as: 'friend' });
 
 const CardDefinition = sequelize.define('CardDefinition', {
     id: {
@@ -217,7 +214,7 @@ const CardDefinition = sequelize.define('CardDefinition', {
         allowNull: false,
         defaultValue: DataTypes.NOW,
     },
-});          
+});
 
 const GameCard = sequelize.define('GameCard', {
     id: {
@@ -228,7 +225,7 @@ const GameCard = sequelize.define('GameCard', {
     game_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
-    },  
+    },
     card_definition_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -254,12 +251,12 @@ const GameCard = sequelize.define('GameCard', {
         type: DataTypes.DATE,
         allowNull: false,
         defaultValue: DataTypes.NOW,
-    },  
+    },
 });
 
-GameCard.hasOne(Game, { foreignKey: 'game_id' });
-GameCard.hasOne(User, { foreignKey: 'owner_id' });
-GameCard.hasOne(CardDefinition, { foreignKey: 'card_definition_id' });
+GameCard.belongsTo(Game, { foreignKey: 'game_id' });
+GameCard.belongsTo(User, { foreignKey: 'owner_id' });
+GameCard.belongsTo(CardDefinition, { foreignKey: 'card_definition_id' });
 
 const GameMove = sequelize.define('GameMove', {
     id: {
@@ -270,7 +267,7 @@ const GameMove = sequelize.define('GameMove', {
     game_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
-    },  
+    },
     player_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -294,15 +291,15 @@ const GameMove = sequelize.define('GameMove', {
         allowNull: false,
         defaultValue: DataTypes.NOW,
     },
-    updated_at: {   
+    updated_at: {
         type: DataTypes.DATE,
         allowNull: false,
         defaultValue: DataTypes.NOW,
     },
 });
 
-GameMove.hasOne(Game, { foreignKey: 'game_id' });
-GameMove.hasOne(User, { foreignKey: 'player_id' });
-GameMove.hasOne(GameCard, { foreignKey: 'card_id' });
+GameMove.belongsTo(Game, { foreignKey: 'game_id' });
+GameMove.belongsTo(User, { foreignKey: 'player_id' });
+GameMove.belongsTo(GameCard, { foreignKey: 'card_id' });
 
 export { User, Game, GamePlayer, Chatlog, Friendship, CardDefinition, GameCard, GameMove };
