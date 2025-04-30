@@ -13,7 +13,7 @@ export interface UserAttributes {
     updated_at: Date;
 }
 
-export interface UserInstance extends Model<UserAttributes>, UserAttributes {}
+export interface UserInstance extends Model<UserAttributes>, UserAttributes { }
 
 export interface SessionUser {
     id: number;
