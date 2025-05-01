@@ -4,7 +4,7 @@
   "description": "[![Open in Codespaces](https://classroom.github.com/assets/launch-codespace-2972f46106e565e64193e422d61a12cf1da4916b45550586e14ef0a7c637dd04.svg)](https://classroom.github.com/open-in-codespaces?assignment_repo_id=18970297)",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start:dev": "nodemon --exec ts-node src/server/index.ts",
+    "start:dev": "npx ts-node src/server/db/init.ts && nodemon --exec ts-node src/server/index.ts",
     "prepare": "husky",
     "prettier": "prettier --write ./src"
   },
@@ -23,8 +23,10 @@
   },
   "homepage": "https://github.com/sfsu-csc-667-spring-2025-roberts/term-project-team-19#readme",
   "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
     "@types/cookie-parser": "^1.4.8",
     "@types/express": "^5.0.1",
+    "@types/express-session": "^1.18.1",
     "@types/morgan": "^1.9.9",
     "@types/node": "^22.14.0",
     "husky": "^9.1.7",
@@ -35,11 +37,16 @@
     "typescript": "^5.8.3"
   },
   "dependencies": {
+    "bcrypt": "^5.1.1",
     "cookie-parser": "^1.4.7",
-    "dotenv": "^16.4.7",
+    "dotenv": "^16.5.0",
     "ejs": "^3.1.10",
     "express": "^5.1.0",
+    "express-session": "^1.18.1",
     "http-errors": "^2.0.0",
-    "morgan": "^1.10.0"
+    "morgan": "^1.10.0",
+    "pg": "^8.15.6",
+    "pg-hstore": "^2.3.4",
+    "sequelize": "^6.37.7"
   }
 }
