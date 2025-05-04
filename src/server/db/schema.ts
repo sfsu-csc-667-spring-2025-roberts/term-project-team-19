@@ -44,6 +44,18 @@ const Game = sequelize.define('Game', {
         type: DataTypes.INTEGER,
         allowNull: false,
     },
+    member_2_id: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+    },
+    member_3_id: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+    },
+    member_4_id: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+    },
     status: {
         type: DataTypes.ENUM(
             GameStatus.WAITING, 
@@ -55,6 +67,10 @@ const Game = sequelize.define('Game', {
     current_turn: {
         type: DataTypes.INTEGER,
         allowNull: true,
+    },
+    turn_direction: {
+        type: DataTypes.INTEGER, // 1 for clockwise, -1 for counter-clockwise
+        allowNull: false,
     },
     created_at: {
         type: DataTypes.DATE,
@@ -68,6 +84,9 @@ const Game = sequelize.define('Game', {
     },
 });
 Game.belongsTo(User, { foreignKey: 'host_id' });
+Game.belongsTo(User, { foreignKey: 'member_2_id' });
+Game.belongsTo(User, { foreignKey: 'member_3_id' });
+Game.belongsTo(User, { foreignKey: 'member_4_id' });
 
 const GamePlayer = sequelize.define('GamePlayer', {
     id: {
@@ -283,6 +302,8 @@ const GameMove = sequelize.define('GameMove', {
             GameMoveType.SKIP,
             GameMoveType.REVERSE,
             GameMoveType.DRAW_FOUR,
+            GameMoveType.DRAW_TWO,
+            GameMoveType.WILD,
         ),
         allowNull: false,
     },

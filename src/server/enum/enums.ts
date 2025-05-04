@@ -45,4 +45,6 @@ export enum GameMoveType {
     SKIP = 'skip',
     REVERSE = 'reverse',
     DRAW_FOUR = 'draw_four',
+    DRAW_TWO = 'draw_two',
+    WILD = 'wild',
 }
