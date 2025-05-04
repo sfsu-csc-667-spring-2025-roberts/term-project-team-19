@@ -8,6 +8,7 @@ import session from "express-session";
 
 import rootRoutes from "./routes/root";
 import authRoutes from "./routes/auth";
+import gamesRoutes from "./routes/games";
 import testRoutes from "./routes/test";
 import { timeMiddleware } from "./middleware/time";
 
@@ -36,6 +37,7 @@ app.set("view engine", "ejs");
 
 app.use("/", rootRoutes);
 app.use("/auth", authRoutes);
+app.use("/games", gamesRoutes);
 
 app.use((_, __, next) => {
   next(httpErrors(404));
