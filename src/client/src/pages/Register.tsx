@@ -41,7 +41,7 @@ export default function Register() {
       await register(username, email, password);
       navigate('/lobby');
     } catch (err) {
-      setError('Failed to create an account. Please try again.');
+      setError(err instanceof Error ? err.message : 'Failed to create an account. Please try again.');
     } finally {
       setLoading(false);
     }

@@ -67,7 +67,7 @@ const Game = sequelize.define('Game', {
         defaultValue: DataTypes.NOW,
     },
 });
-Game.belongsTo(User, { foreignKey: 'host_id' });
+Game.belongsTo(User, { foreignKey: 'host_id', as: 'host' });
 
 const GamePlayer = sequelize.define('GamePlayer', {
     id: {
@@ -101,6 +101,7 @@ const GamePlayer = sequelize.define('GamePlayer', {
 
 GamePlayer.belongsTo(User, { foreignKey: 'user_id' });
 GamePlayer.belongsTo(Game, { foreignKey: 'game_id' });
+Game.hasMany(GamePlayer, { foreignKey: 'game_id', as: 'gamePlayers' });
 
 const Chatlog = sequelize.define('Chatlog', {
     id: {

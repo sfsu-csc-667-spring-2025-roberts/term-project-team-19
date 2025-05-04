@@ -6,28 +6,28 @@ import { UserInstance, AuthenticatedRequest, AuthenticatedRequestHandler } from 
 
 const signinHandler: AuthenticatedRequestHandler = async (req, res) => {
     try {
-        const { username, password } = req.body;
+        const { email, password } = req.body;
 
         // Validate input
-        if (!username || !password) {
-            res.status(400).json({ error: 'Missing username or password' });
+        if (!email || !password) {
+            res.status(400).json({ error: 'Missing email or password' });
             return;
         }
 
-        // Find user by username
+        // Find user by email
         const user = await User.findOne({
-            where: { username }
+            where: { email }
         }) as UserInstance | null;
 
         if (!user) {
-            res.status(401).json({ error: 'Invalid username or password' });
+            res.status(401).json({ error: 'Invalid email or password' });
             return;
         }
 
         // Verify password
         const isValidPassword = await bcrypt.compare(password, user.password_hash);
         if (!isValidPassword) {
-            res.status(401).json({ error: 'Invalid username or password' });
+            res.status(401).json({ error: 'Invalid email or password' });
             return;
         }
 

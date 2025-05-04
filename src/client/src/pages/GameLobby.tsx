@@ -118,53 +118,103 @@ export default function GameLobby() {
         </Toolbar>
       </AppBar>
 
-      <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
+      <Container 
+        maxWidth="md" 
+        sx={{ 
+          mt: 4, 
+          mb: 4,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: 'calc(100vh - 64px)' // Subtract AppBar height
+        }}
+      >
         <Box sx={{ 
           display: 'flex', 
           flexDirection: 'column', 
           alignItems: 'center',
-          gap: 3
+          gap: 3,
+          width: '100%',
+          maxWidth: 600
         }}>
+          <Typography 
+            variant="h4" 
+            component="h1" 
+            sx={{ 
+              color: 'primary.main',
+              fontWeight: 'bold',
+              mb: 2
+            }}
+          >
+            Game Lobby
+          </Typography>
+
           <Button
             variant="contained"
             color="primary"
             size="large"
             onClick={() => setCreateDialogOpen(true)}
-            sx={{ minWidth: 200 }}
+            sx={{ 
+              minWidth: 200,
+              py: 1.5,
+              fontSize: '1.1rem'
+            }}
           >
             Create New Game
           </Button>
 
-          <Paper elevation={3} sx={{ width: '100%', maxWidth: 800 }}>
+          <Paper 
+            elevation={3} 
+            sx={{ 
+              width: '100%',
+              borderRadius: 2,
+              overflow: 'hidden'
+            }}
+          >
             <List>
               {loading ? (
                 <ListItem>
-                  <ListItemText primary="Loading games..." />
+                  <ListItemText 
+                    primary="Loading games..." 
+                    sx={{ textAlign: 'center' }}
+                  />
                 </ListItem>
               ) : games.length === 0 ? (
                 <ListItem>
-                  <ListItemText primary="No games available. Create one!" />
+                  <ListItemText 
+                    primary="No games available. Create one!" 
+                    sx={{ textAlign: 'center' }}
+                  />
                 </ListItem>
               ) : (
                 games.map((game) => (
-                  <ListItem key={game.id} divider>
+                  <ListItem 
+                    key={game.id} 
+                    divider
+                    sx={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      py: 2
+                    }}
+                  >
                     <ListItemText
                       primary={`Host: ${game.hostUsername}`}
                       secondary={`Players: ${game.playerCount}/${game.maxPlayers} | Status: ${game.status}`}
                     />
-                    <ListItemSecondaryAction>
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={() => handleJoinGame(game.id)}
-                        disabled={
-                          game.status !== GameStatus.WAITING ||
-                          game.playerCount >= game.maxPlayers
-                        }
-                      >
-                        Join Game
-                      </Button>
-                    </ListItemSecondaryAction>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={() => handleJoinGame(game.id)}
+                      disabled={
+                        game.status !== GameStatus.WAITING ||
+                        game.playerCount >= game.maxPlayers
+                      }
+                      sx={{ ml: 2 }}
+                    >
+                      Join Game
+                    </Button>
                   </ListItem>
                 ))
               )}
@@ -179,11 +229,12 @@ export default function GameLobby() {
         PaperProps={{
           sx: {
             minWidth: 300,
-            maxWidth: 400
+            maxWidth: 400,
+            borderRadius: 2
           }
         }}
       >
-        <DialogTitle>Create New Game</DialogTitle>
+        <DialogTitle sx={{ textAlign: 'center' }}>Create New Game</DialogTitle>
         <DialogContent>
           <FormControl fullWidth sx={{ mt: 2 }}>
             <InputLabel>Max Players</InputLabel>
@@ -198,9 +249,14 @@ export default function GameLobby() {
             </Select>
           </FormControl>
         </DialogContent>
-        <DialogActions>
+        <DialogActions sx={{ px: 3, pb: 2 }}>
           <Button onClick={() => setCreateDialogOpen(false)}>Cancel</Button>
-          <Button onClick={handleCreateGame} variant="contained" color="primary">
+          <Button 
+            onClick={handleCreateGame} 
+            variant="contained" 
+            color="primary"
+            sx={{ minWidth: 100 }}
+          >
             Create
           </Button>
         </DialogActions>
