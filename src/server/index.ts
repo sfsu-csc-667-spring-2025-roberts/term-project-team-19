@@ -1,9 +1,11 @@
 import * as path from "path";
+import * as http from "http";
 
 import express from "express";
 import httpErrors from "http-errors";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
+import { Server } from "socket.io";
 import session from "express-session";
 
 import rootRoutes from "./routes/root";
@@ -11,8 +13,18 @@ import authRoutes from "./routes/auth";
 import testRoutes from "./routes/test";
 import { timeMiddleware } from "./middleware/time";
 
+import * as config from "./config";
+
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server)
+
 const PORT = process.env.PORT || 3000;
+
+config.liveReload(app);
+config.sessesion(app);
+config.sockets(io, app);
+
 
 app.use(morgan("dev"));
 app.use(express.json());
@@ -41,6 +53,6 @@ app.use((_, __, next) => {
   next(httpErrors(404));
 });
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });

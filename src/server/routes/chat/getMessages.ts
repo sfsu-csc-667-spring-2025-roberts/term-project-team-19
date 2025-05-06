@@ -1,49 +1,57 @@
- // backend/routes/chat.js
-import { Router } from 'express';
-import pool from '../db.js'; // adjust path to match your db config file
+import { Router, Request, Response, NextFunction } from 'express'
+import { Chatlog } from '../../db/schema'
+import { Op } from 'sequelize'
 
-const router = Router();
+const router = Router()
 
-router.post('/chat/messages', async (req, res) => {
+const getNewMessages = async (
+  req: Request<{ gameId: string }, any,{ userId: number; timeOfLastSentMessage: string }>,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  const gameId = Number(req.params.gameId)
+  const { userId, timeOfLastSentMessage } = req.body
+
   try {
-    const { gameId, userId, lastTime } = req.body;
+    const newMessages = await Chatlog.findAll({
+      where: {
+        game_id: gameId,
+        sent_at: { [Op.gt]: timeOfLastSentMessage }
+      },
+      order: [['sent_at', 'ASC']]
+    })
 
-    if (!gameId || !lastTime) {
-      return res.status(400).json({ error: 'Missing gameId or lastTime in request body.' });
-    }
-
-    const result = await pool.query(
-      `
-      SELECT id, game_id, user_id, content, sent_at
-      FROM chat_logs
-      WHERE game_id = $1 AND sent_at > $2
-      ORDER BY sent_at ASC
-      `,
-      [gameId, lastTime]
-    );
-
-    return res.status(200).json({ messages: result.rows });
+    res.json({ success: true, messages: newMessages })
   } catch (err) {
-    console.error('Error fetching messages:', err);
-    return res.status(500).json({ error: 'Internal server error' });
+    console.error('Error fetching messages:', err)
+    res.status(500).json({ success: false, error: 'Failed to fetch messages' })
   }
-});
+}
 
-export default router;
+router.post('/chat/messages/:gameId', getNewMessages)
 
+export default router
 
-/*
- id | game_id | user_id |     content      |       sent_at        
-----+---------+---------+------------------+------------------------
-  1 |      10 |       2 | Let’s win this!  | 2025-05-01 11:02:15
-  2 |      10 |       3 | Push mid now     | 2025-05-01 11:02:20
-  3 |      11 |       1 | Hello team!      | 2025-05-01 11:05:01
-  4 |      10 |       2 | Heal me!         | 2025-05-01 11:06:03
+/* - fix authentication for the game id,
+     because right now anyone with game id can see 
+     the chats by searching it.
 
+  -  input validation needs to be fixed
 
-  front end will send request with the 
-  timestamp of the last message, game_id, and user_id 
-  to this route. whenever this route is called we will 
-  return the recent messages in order with the time
-*/ 
- 
+  - should be GET not POST
+
+  - Unbounded result set
+
+  - No limit or pagination. If a client’s timeOfLastSentMessage is
+    very old (or omitted), you could end up pulling back thousands of
+    rows in one go, which can kill performance.
+  - String‐based timestamp comparisons
+
+  - Relying on Sequelize/your DB to coerce a JS string into the proper
+   date type risks timezone or lexicographical‐vs‐chronological bugs.
+   It’s safer to parse into a Date (or use a JS Date on the Sequelize side)
+    so you know exactly what you’re comparing.
+ - No explicit error for invalid gameId
+
+If gameId is NaN, the where clause silently becomes game_id = NaN (which matches nothing) rather than returning a “400 Bad Request: invalid gameId.”
+ */
