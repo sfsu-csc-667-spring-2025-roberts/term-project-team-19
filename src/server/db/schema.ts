@@ -228,7 +228,7 @@ const CardDefinition = sequelize.define("CardDefinition", {
   },
   value: {
     type: DataTypes.INTEGER,
-    allowNull: false,
+    allowNull: true,
   },
   created_at: {
     type: DataTypes.DATE,

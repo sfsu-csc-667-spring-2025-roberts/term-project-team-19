@@ -13,7 +13,6 @@ import authRoutes from "./routes/auth";
 import gamesRoutes from "./routes/games";
 import testRoutes from "./routes/test";
 import { timeMiddleware } from "./middleware/time";
-import { initializeDatabase } from "./db/init";
 
 import * as config from "./config";
 
@@ -68,57 +67,54 @@ app.use((_, __, next) => {
   next(httpErrors(404));
 });
 
-// Initialize database and start server
-initializeDatabase()
-  .then(() => {
-    io.on("connection", (socket: any) => {
-      console.log("A user connected:", socket.id);
+try {
+  io.on("connection", (socket: any) => {
+    console.log("A user connected:", socket.id);
 
-      socket.on("joinGame", (gameId: string) => {
-        socket.join(`game_${gameId}`);
-      });
-
-      socket.on(
-        "playCard",
-        ({
-          gameId,
-          card,
-          playerId,
-        }: {
-          gameId: string;
-          card: any;
-          playerId: string;
-        }) => {
-          // TODO: Validate and update game state in DB
-          io.to(`game_${gameId}`).emit("cardPlayed", { card, playerId });
-        },
-      );
-
-      socket.on(
-        "sendChat",
-        ({
-          gameId,
-          message,
-          playerId,
-        }: {
-          gameId: string;
-          message: string;
-          playerId: string;
-        }) => {
-          io.to(`game_${gameId}`).emit("chatMessage", { message, playerId });
-        },
-      );
-
-      socket.on("disconnect", () => {
-        console.log("User disconnected:", socket.id);
-      });
+    socket.on("joinGame", (gameId: string) => {
+      socket.join(`game_${gameId}`);
     });
 
-    server.listen(PORT, () => {
-      console.log(`Server is running on port ${PORT}`);
+    socket.on(
+      "playCard",
+      ({
+        gameId,
+        card,
+        playerId,
+      }: {
+        gameId: string;
+        card: any;
+        playerId: string;
+      }) => {
+        // TODO: Validate and update game state in DB
+        io.to(`game_${gameId}`).emit("cardPlayed", { card, playerId });
+      },
+    );
+
+    socket.on(
+      "sendChat",
+      ({
+        gameId,
+        message,
+        playerId,
+      }: {
+        gameId: string;
+        message: string;
+        playerId: string;
+      }) => {
+        io.to(`game_${gameId}`).emit("chatMessage", { message, playerId });
+      },
+    );
+
+    socket.on("disconnect", () => {
+      console.log("User disconnected:", socket.id);
     });
-  })
-  .catch((error) => {
-    console.error("Failed to start server:", error);
-    process.exit(1);
   });
+
+  server.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+  });
+} catch (error) {
+  console.error("Failed to start server:", error);
+  process.exit(1);
+}

@@ -4,7 +4,8 @@
   "description": "[![Open in Codespaces](https://classroom.github.com/assets/launch-codespace-2972f46106e565e64193e422d61a12cf1da4916b45550586e14ef0a7c637dd04.svg)](https://classroom.github.com/open-in-codespaces?assignment_repo_id=18970297)",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start:dev": "npx ts-node src/server/db/init.ts && nodemon --exec ts-node src/server/index.ts",
+    "start:dev": "npx ts-node src/server/db/init_dev.ts && nodemon --exec ts-node src/server/index.ts",
+    "start:test": "npx ts-node src/server/db/init_test.ts && nodemon --exec ts-node src/server/index.ts",
     "start:client": "cd src/client && npm run dev",
     "prepare": "husky",
     "prettier": "prettier --write ./src"
