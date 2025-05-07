@@ -10,7 +10,7 @@ import {
   Alert,
 } from "@mui/material";
 import { API_URL } from "../config";
-
+import { hashPassword } from "../helpers/password";
 export default function Login() {
   const navigate = useNavigate();
 
@@ -27,7 +27,7 @@ export default function Login() {
     try {
       let request = {
         email: email,
-        password: password,
+        password: await hashPassword(password),
       };
       console.log(request);
       let response = await fetch(`${API_URL}/auth/signin`, {
