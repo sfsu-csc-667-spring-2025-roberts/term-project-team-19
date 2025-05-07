@@ -2,7 +2,7 @@ import sequelize from './config';
 import { User, Game, GamePlayer, Chatlog, Friendship, CardDefinition, GameCard, GameMove } from './schema';
 import { initializeCards } from './init_cards';
 
-async function initializeDatabase() {
+export async function initializeDatabase() {
     try {
         console.log('Attempting to connect to database...');
         // Test the connection
@@ -11,6 +11,7 @@ async function initializeDatabase() {
 
         // Log current database name
         const [results] = await sequelize.query('SELECT current_database();');
+        console.log('Connected to database:', results[0]);
 
         // Sync all models
         console.log('Starting schema sync...');
@@ -25,9 +26,9 @@ async function initializeDatabase() {
             GameMove: GameMove.tableName
         });
 
-        // Sync with detailed logging
+        // Sync without force to preserve data
         await sequelize.sync({ 
-            force: true,
+            force: false,
             logging: (msg) => console.log('Sequelize:', msg)
         });
         console.log('Database schema synced successfully.');
@@ -43,7 +44,7 @@ async function initializeDatabase() {
             FROM information_schema.tables 
             WHERE table_schema = 'public'
         `);
-        console.log('Created tables:', tables.map((t: any) => t.table_name));
+        console.log('Available tables:', tables.map((t: any) => t.table_name));
 
         console.log('Database initialization completed successfully.');
     } catch (error) {
@@ -56,20 +57,18 @@ async function initializeDatabase() {
             });
         }
         throw error;
-    } finally {
-        // Close the connection
-        await sequelize.close();
-        console.log('Database connection closed.');
     }
 }
 
-// Run the initialization
-initializeDatabase()
-    .then(() => {
-        console.log('Initialization completed successfully.');
-        process.exit(0);
-    })
-    .catch((error) => {
-        console.error('Failed to initialize database:', error);
-        process.exit(1);
-    });
+// Only run initialization if this file is run directly
+if (require.main === module) {
+    initializeDatabase()
+        .then(() => {
+            console.log('Initialization completed successfully.');
+            process.exit(0);
+        })
+        .catch((error) => {
+            console.error('Failed to initialize database:', error);
+            process.exit(1);
+        });
+}
