@@ -10,7 +10,7 @@ import {
   GameMove,
 } from "./schema";
 import { initializeCards } from "./init_cards";
-import { hashPassword } from "../../helpers/password";
+import { hashPassword } from "./helpers/password";
 
 export const initializeTestUsers = async () => {
   const hashedPassword = await hashPassword("password123");

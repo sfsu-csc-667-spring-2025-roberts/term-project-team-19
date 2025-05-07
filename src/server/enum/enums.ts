@@ -12,7 +12,7 @@ export enum FriendshipStatus {
 
 export enum GameCardLocation {
   HAND = "hand",
-  BOARD = "board",
+  DECK = "deck",
   DISCARD_PILE = "discard_pile",
 }
 

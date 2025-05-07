@@ -259,7 +259,7 @@ const GameCard = sequelize.define("GameCard", {
   location: {
     type: DataTypes.ENUM(
       GameCardLocation.HAND,
-      GameCardLocation.BOARD,
+      GameCardLocation.DECK,
       GameCardLocation.DISCARD_PILE,
     ),
     allowNull: false,

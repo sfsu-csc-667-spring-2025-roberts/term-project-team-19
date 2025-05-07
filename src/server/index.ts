@@ -50,24 +50,24 @@ app.use((req, res, next) => {
 });
 
 config.liveReload(app);
-config.sessesion(app);
-config.sockets(io, app);
+// config.sessesion(app);
+//config.sockets(io, app);
 
 app.use(morgan("dev"));
 app.use(cookieParser());
 
-// Session middleware
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET || "your-secret-key",
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 24 * 60 * 60 * 1000, // 24 hours
-    },
-  }),
-);
+// // Session middleware
+// app.use(
+//   session({
+//     secret: process.env.SESSION_SECRET || "your-secret-key",
+//     resave: false,
+//     saveUninitialized: false,
+//     cookie: {
+//       secure: process.env.NODE_ENV === "production",
+//       maxAge: 24 * 60 * 60 * 1000, // 24 hours
+//     },
+//   }),
+// );
 
 app.use(express.static(path.join(process.cwd() + "public")));
 app.set("views", path.join(process.cwd(), "src", "server", "templates"));
@@ -78,9 +78,9 @@ app.use("/", rootRoutes);
 app.use("/auth", authRoutes);
 app.use("/games", gamesRoutes);
 
-// app.use((_, __, next) => {
-//   next(httpErrors(404));
-// });
+app.use((_, __, next) => {
+  next(httpErrors(404));
+});
 
 try {
   io.on("connection", (socket: any) => {
