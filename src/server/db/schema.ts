@@ -22,6 +22,10 @@ const User = sequelize.define('User', {
         type: DataTypes.STRING,
         allowNull: false,
     },
+    game_id: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+    },
     created_at: {
         type: DataTypes.DATE,
         allowNull: false,
@@ -221,7 +225,7 @@ const CardDefinition = sequelize.define('CardDefinition', {
     },
     value: {
         type: DataTypes.INTEGER,
-        allowNull: false,
+        allowNull: true,
     },
     created_at: {
         type: DataTypes.DATE,

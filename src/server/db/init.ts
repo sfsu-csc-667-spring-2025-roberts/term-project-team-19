@@ -1,5 +1,6 @@
 import sequelize from './config';
 import { User, Game, GamePlayer, Chatlog, Friendship, CardDefinition, GameCard, GameMove } from './schema';
+import { initializeCards } from './init_cards';
 
 async function initializeDatabase() {
     try {
@@ -30,6 +31,11 @@ async function initializeDatabase() {
             logging: (msg) => console.log('Sequelize:', msg)
         });
         console.log('Database schema synced successfully.');
+
+        // Initialize card definitions
+        console.log('Initializing card definitions...');
+        await initializeCards();
+        console.log('Card definitions initialized successfully.');
 
         // Verify tables were created
         const [tables] = await sequelize.query(`

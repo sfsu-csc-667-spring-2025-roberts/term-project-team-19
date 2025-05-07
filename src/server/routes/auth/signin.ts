@@ -35,7 +35,8 @@ const signinHandler: AuthenticatedRequestHandler = async (req, res) => {
         req.session.user = {
             id: user.id,
             username: user.username,
-            email: user.email
+            email: user.email,
+            game_id: user.game_id
         };
 
         // Return success response (excluding password hash)
