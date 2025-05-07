@@ -18,13 +18,13 @@ export const initializeTestUsers = async () => {
     // Create test users
     const testUsers = [
       {
-        username: "testuser1",
-        email: "testuser1@example.com",
+        username: "test1",
+        email: "test",
         password: hashedPassword,
       },
       {
-        username: "testuser2",
-        email: "testuser2@example.com",
+        username: "test2",
+        email: "test2",
         password: hashedPassword,
       },
     ];

@@ -1,12 +1,16 @@
 import * as path from "path";
 import * as http from "http";
 import { Server as SocketIOServer } from "socket.io";
-
 import express from "express";
 import httpErrors from "http-errors";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
 import session from "express-session";
+import cors from "cors";
+import dotenv from "dotenv";
+
+// Load environment variables
+dotenv.config();
 
 import rootRoutes from "./routes/root";
 import authRoutes from "./routes/auth";
@@ -21,6 +25,18 @@ const server = http.createServer(app);
 const io = new SocketIOServer(server, { cors: { origin: "*" } });
 
 const PORT = process.env.PORT || 3000;
+
+// CORS middleware
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL,
+    credentials: true,
+  }),
+);
+
+// Body parsing middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 
 // Request logging middleware
 app.use((req, res, next) => {
@@ -38,8 +54,6 @@ config.sessesion(app);
 config.sockets(io, app);
 
 app.use(morgan("dev"));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 // Session middleware
@@ -60,12 +74,13 @@ app.set("views", path.join(process.cwd(), "src", "server", "templates"));
 app.set("view engine", "ejs");
 
 app.use("/", rootRoutes);
+// redirect to auth
 app.use("/auth", authRoutes);
 app.use("/games", gamesRoutes);
 
-app.use((_, __, next) => {
-  next(httpErrors(404));
-});
+// app.use((_, __, next) => {
+//   next(httpErrors(404));
+// });
 
 try {
   io.on("connection", (socket: any) => {
