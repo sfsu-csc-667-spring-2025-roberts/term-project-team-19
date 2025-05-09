@@ -9,6 +9,9 @@ const router = Router();
 authRouter.post("/signup", signupRouter);
 authRouter.post("/signin", signinHandler);
 authRouter.post("/signout", signoutHandler);
+authRouter.get("/check", requireAuth, (req, res) => {
+  res.json(req.session.user);
+});
 
 // Mount all auth routes
 router.use("/", authRouter);
