@@ -72,13 +72,17 @@ const Game = sequelize.define("Game", {
     ),
     allowNull: false,
   },
+  player_count: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
   current_turn: {
     type: DataTypes.INTEGER,
     allowNull: true,
   },
   turn_direction: {
     type: DataTypes.INTEGER, // 1 for clockwise, -1 for counter-clockwise
-    allowNull: false,
+    allowNull: true,
   },
   created_at: {
     type: DataTypes.DATE,
@@ -113,7 +117,7 @@ const GamePlayer = sequelize.define("GamePlayer", {
   seat_number: {
     // 1, 2, 3, 4
     type: DataTypes.INTEGER,
-    allowNull: false,
+    allowNull: true,
   },
   created_at: {
     type: DataTypes.DATE,

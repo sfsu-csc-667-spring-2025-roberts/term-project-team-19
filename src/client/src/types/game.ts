@@ -54,7 +54,7 @@ export interface Game {
   currentTurn: number;
   players: GamePlayer[];
   topCard?: Card;
-  direction: "clockwise" | "counterclockwise";
+  direction: 1 | -1;
 }
 
 export interface ChatMessage {

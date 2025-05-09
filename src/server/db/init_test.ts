@@ -11,6 +11,7 @@ import {
 } from "./schema";
 import { initializeCards } from "./init_cards";
 import { hashPassword } from "./helpers/password";
+import { GameStatus } from "../enum/enums";
 
 export const initializeTestUsers = async () => {
   const hashedPassword = await hashPassword("test");
@@ -29,6 +30,11 @@ export const initializeTestUsers = async () => {
       },
     ];
 
+    const testGame = {
+      host_id: 2,
+      max_players: 4,
+    };
+
     // Create users in the database
     for (const user of testUsers) {
       await User.create({
@@ -41,6 +47,19 @@ export const initializeTestUsers = async () => {
     console.error("Error initializing test users:", error);
     throw error;
   }
+
+  // Create users in the database
+  await Game.create({
+    host_id: 2,
+    max_players: 4,
+    status: GameStatus.WAITING,
+    player_count: 1,
+  });
+
+  await GamePlayer.create({
+    game_id: 1,
+    user_id: 2,
+  });
 };
 
 export async function initializeDatabase() {

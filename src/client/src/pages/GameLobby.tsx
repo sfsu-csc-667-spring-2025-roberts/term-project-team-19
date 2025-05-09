@@ -24,6 +24,7 @@ export default function GameLobby() {
       });
       if (response.ok) {
         const data = await response.json();
+        console.log(data);
         setGames(data);
       }
     } catch (error) {
@@ -56,13 +57,13 @@ export default function GameLobby() {
 
   const handleJoinGame = async (gameId: number) => {
     try {
-      const response = await fetch(`${SERVER_URL}/game/${gameId}/join`, {
+      const response = await fetch(`${SERVER_URL}/games/${gameId}/join`, {
         method: "POST",
         credentials: "include",
       });
 
       if (response.ok) {
-        navigate(`s/${gameId}`);
+        navigate(`../game/${gameId}`);
       }
     } catch (error) {
       console.error("Failed to join game:", error);
