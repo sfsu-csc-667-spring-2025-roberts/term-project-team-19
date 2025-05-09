@@ -1,38 +1,66 @@
-import { useAuth } from "../contexts/auth";
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "../contexts/auth";
 
-export default function Login() {
+export default function Register() {
   const navigate = useNavigate();
+  const { register } = useAuth();
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters long");
+      return;
+    }
+
     setLoading(true);
 
     try {
-      await login(email, password);
-      navigate("/");
+      await register(username, email, password);
+      navigate("/lobby");
     } catch (err) {
-      setError("Failed to login. Please check your credentials.");
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Failed to create an account. Please try again.",
+      );
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="login-container">
-      <div className="login-box">
-        <h1 className="login-title">Welcome to UNO</h1>
+    <div className="register-container">
+      <div className="register-box">
+        <h1 className="register-title">Create Account</h1>
 
         {error && <div className="error-message">{error}</div>}
 
-        <form onSubmit={handleSubmit} className="login-form">
+        <form onSubmit={handleSubmit} className="register-form">
+          <div className="form-group">
+            <label htmlFor="username">Username</label>
+            <input
+              id="username"
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+            />
+          </div>
+
           <div className="form-group">
             <label htmlFor="email">Email</label>
             <input
@@ -55,18 +83,29 @@ export default function Login() {
             />
           </div>
 
-          <button type="submit" disabled={loading} className="login-button">
-            {loading ? "Logging in..." : "Login"}
+          <div className="form-group">
+            <label htmlFor="confirmPassword">Confirm Password</label>
+            <input
+              id="confirmPassword"
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+            />
+          </div>
+
+          <button type="submit" disabled={loading} className="register-button">
+            {loading ? "Creating Account..." : "Register"}
           </button>
         </form>
 
-        <div className="register-link">
-          Don't have an account? <Link to="/register">Register here</Link>
+        <div className="login-link">
+          Already have an account? <Link to="/login">Login here</Link>
         </div>
       </div>
 
       <style>{`
-        .login-container {
+        .register-container {
           position: fixed;
           top: 0;
           left: 0;
@@ -78,7 +117,7 @@ export default function Login() {
           background-color: #121212;
         }
 
-        .login-box {
+        .register-box {
           background-color: #1e1e1e;
           padding: 2rem;
           border-radius: 8px;
@@ -87,7 +126,7 @@ export default function Login() {
           box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
-        .login-title {
+        .register-title {
           color: #ff4400;
           text-align: center;
           margin-bottom: 1.5rem;
@@ -103,7 +142,7 @@ export default function Login() {
           margin-bottom: 1rem;
         }
 
-        .login-form {
+        .register-form {
           display: flex;
           flex-direction: column;
           gap: 1rem;
@@ -127,7 +166,7 @@ export default function Login() {
           color: white;
         }
 
-        .login-button {
+        .register-button {
           background-color: #ff4400;
           color: white;
           padding: 0.75rem;
@@ -138,24 +177,24 @@ export default function Login() {
           margin-top: 1rem;
         }
 
-        .login-button:disabled {
+        .register-button:disabled {
           background-color: #666;
           cursor: not-allowed;
         }
 
-        .register-link {
+        .login-link {
           text-align: center;
           margin-top: 1.5rem;
           color: #888;
         }
 
-        .register-link a {
+        .login-link a {
           color: #ff4400;
           text-decoration: none;
           font-weight: bold;
         }
 
-        .register-link a:hover {
+        .login-link a:hover {
           text-decoration: underline;
         }
       `}</style>

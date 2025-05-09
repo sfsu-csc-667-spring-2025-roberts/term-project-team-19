@@ -13,18 +13,18 @@ import { initializeCards } from "./init_cards";
 import { hashPassword } from "./helpers/password";
 
 export const initializeTestUsers = async () => {
-  const hashedPassword = await hashPassword("password123");
+  const hashedPassword = await hashPassword("test");
   try {
     // Create test users
     const testUsers = [
       {
         username: "test1",
-        email: "test",
+        email: "test1@test.com",
         password: hashedPassword,
       },
       {
         username: "test2",
-        email: "test2",
+        email: "test2@test.com",
         password: hashedPassword,
       },
     ];

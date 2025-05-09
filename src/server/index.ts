@@ -29,7 +29,7 @@ const PORT = process.env.PORT || 3000;
 // CORS middleware
 app.use(
   cors({
-    origin: process.env.CLIENT_URL,
+    origin: ["http://localhost:3001", "http://localhost:5173"],
     credentials: true,
   }),
 );
@@ -44,18 +44,18 @@ config.session(app);
 app.use(morgan("dev"));
 app.use(cookieParser());
 
-// // Session middleware
-// app.use(
-//   session({
-//     secret: process.env.SESSION_SECRET || "your-secret-key",
-//     resave: false,
-//     saveUninitialized: false,
-//     cookie: {
-//       secure: process.env.NODE_ENV === "production",
-//       maxAge: 24 * 60 * 60 * 1000, // 24 hours
-//     },
-//   }),
-// );
+// Session middleware
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || "your-secret-key",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    },
+  }),
+);
 
 app.use(express.static(path.join(process.cwd() + "public")));
 app.set("views", path.join(process.cwd(), "src", "server", "templates"));
@@ -66,9 +66,9 @@ app.use("/", rootRoutes);
 app.use("/auth", authRoutes);
 app.use("/games", gamesRoutes);
 
-app.use((_, __, next) => {
-  next(httpErrors(404));
-});
+// app.use((_, __, next) => {
+//   next(httpErrors(404));
+// });
 
 try {
   io.on("connection", (socket: any) => {

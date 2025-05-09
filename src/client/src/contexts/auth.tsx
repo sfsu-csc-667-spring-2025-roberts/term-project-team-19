@@ -5,7 +5,6 @@ import {
   useEffect,
   ReactNode,
 } from "react";
-import bcrypt from "bcryptjs-react";
 import { User } from "../types/index";
 import { SERVER_URL } from "../config";
 
@@ -20,11 +19,6 @@ interface AuthContextType {
   ) => Promise<void>;
   logout: () => Promise<void>;
 }
-
-export const hashPassword = async (password: string): Promise<string> => {
-  const saltRounds = 10;
-  return bcrypt.hash(password, saltRounds);
-};
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -41,13 +35,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const response = await fetch(`${SERVER_URL}/auth/check`, {
         credentials: "include",
+        method: "POST",
       });
-      if (response.ok) {
+
+      if (response.status === 401) {
+        // Not authenticated, which is fine
+        setUser(null);
+      } else if (response.ok) {
         const userData = await response.json();
         setUser(userData);
+      } else {
+        // Handle other error cases
+        console.error("Auth check failed with status:", response.status);
+        setUser(null);
       }
     } catch (error) {
       console.error("Auth check failed:", error);
+      setUser(null);
     } finally {
       setLoading(false);
     }
@@ -55,14 +59,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (email: string, password: string) => {
     try {
-      const hashedPassword = await hashPassword(password);
       const response = await fetch(`${SERVER_URL}/auth/signin`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         credentials: "include",
-        body: JSON.stringify({ email, hashedPassword }),
+        body: JSON.stringify({ email, password }),
       });
 
       if (!response.ok) {
@@ -84,14 +87,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     password: string,
   ) => {
     try {
-      const hashedPassword = await hashPassword(password);
       const response = await fetch(`${SERVER_URL}/auth/signup`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         credentials: "include",
-        body: JSON.stringify({ username, email, hashedPassword }),
+        body: JSON.stringify({ username, email, password }),
       });
 
       if (!response.ok) {

@@ -33,12 +33,12 @@ const signinHandler: RequestHandler = async (req, res) => {
       return;
     }
 
-    // // Verify password
-    // const isValidPassword = await bcrypt.compare(password, user.password_hash);
-    // if (!isValidPassword) {
-    //   res.status(401).json({ error: "Invalid email or password" });
-    //   return;
-    // }
+    // Verify password
+    const isValidPassword = await bcrypt.compare(password, user.password_hash);
+    if (!isValidPassword) {
+      res.status(401).json({ error: "Invalid email or password" });
+      return;
+    }
 
     // Set session
     req.session.user = {
