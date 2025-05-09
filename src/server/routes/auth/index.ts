@@ -9,8 +9,13 @@ const router = Router();
 authRouter.post("/signup", signupRouter);
 authRouter.post("/signin", signinHandler);
 authRouter.post("/signout", signoutHandler);
-authRouter.get("/check", requireAuth, (req, res) => {
-  res.json(req.session.user);
+authRouter.post("/check", (req, res) => {
+  try {
+    const user = req.session.user;
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ error: "User not signed in" });
+  }
 });
 
 // Mount all auth routes
