@@ -13,6 +13,17 @@
     "type": "git",
     "url": "git+https://github.com/sfsu-csc-667-spring-2025-roberts/term-project-team-19.git"
   },
+  "targets":{
+    "chat": {
+      "source": "./src/client/chat/index.ts"
+    },
+    "games": {
+      "source": "./src/client/games/index.ts"
+    },
+    "socket": {
+      "source": "./src/client/socket/index.ts"
+    }
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -46,6 +57,7 @@
     "@mui/icons-material": "^7.1.0",
     "@mui/material": "^7.1.0",
     "@types/socket.io": "^3.0.1",
+    "@types/socket.io-client": "^3.0.0",
     "bcrypt": "^5.1.1",
     "bcryptjs-react": "^2.4.6",
     "connect-pg-simple": "^10.0.0",
@@ -63,6 +75,7 @@
     "sequelize": "^6.37.7",
     "sequelize-cli": "^6.6.2",
     "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.1",
     "vite": "^6.3.5"
   }
 }
