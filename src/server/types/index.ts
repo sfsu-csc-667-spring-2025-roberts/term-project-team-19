@@ -49,6 +49,7 @@ export interface SessionUser {
   username: string;
   email: string;
   game_id: number;
+  token: string;
 }
 
 declare module "express-session" {

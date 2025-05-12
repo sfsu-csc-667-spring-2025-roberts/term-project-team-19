@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <% styles.forEach(function(style) { %>
+        <link rel="stylesheet" href="<%= style %>">
+    <% }); %>
+</head>
+<body>
+    <div class="container">
+        <h1>Game Room</h1>
+        <div id="gameBoard">
+            <!-- Game board will be populated dynamically -->
+        </div>
+        <div id="gameControls">
+            <button id="leaveGame">Leave Game</button>
+        </div>
+    </div>
+</body>
+</html> 

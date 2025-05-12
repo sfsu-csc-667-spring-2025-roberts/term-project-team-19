@@ -48,16 +48,18 @@ app.use(cookieParser());
 app.use(
   session({
     secret: process.env.SESSION_SECRET || "your-secret-key",
-    resave: false,
-    saveUninitialized: false,
+    resave: true,
+    saveUninitialized: true,
     cookie: {
       secure: process.env.NODE_ENV === "production",
+      httpOnly: true,
+      sameSite: "lax",
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
     },
   }),
 );
 
-app.use(express.static(path.join(process.cwd() + "public")));
+app.use(express.static(path.join(process.cwd(), "src", "client", "public")));
 app.set("views", path.join(process.cwd(), "src", "server", "templates"));
 app.set("view engine", "ejs");
 

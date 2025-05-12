@@ -43,6 +43,7 @@ const router = Router();
 
 // Get all games
 router.get("/", requireAuth, (async (req, res: Response) => {
+  console.log("Session:", JSON.stringify(req.session.user, null, 2));
   try {
     const games = (await Game.findAll({
       include: [
@@ -54,7 +55,14 @@ router.get("/", requireAuth, (async (req, res: Response) => {
         {
           model: GamePlayer,
           as: "gamePlayers",
-          attributes: ["id"],
+          attributes: ["id", "user_id"],
+          include: [
+            {
+              model: User,
+              as: "User",
+              attributes: ["username"],
+            },
+          ],
         },
       ],
     })) as GameInstance[];
@@ -66,6 +74,10 @@ router.get("/", requireAuth, (async (req, res: Response) => {
       playerCount: game.gamePlayers?.length || 0,
       maxPlayers: 4, // Default max players
       status: game.status,
+      players: game.gamePlayers?.map((player) => ({
+        id: player.get("user_id"),
+        username: (player as any).User?.get("username"),
+      })),
     }));
 
     res.json(formattedGames);

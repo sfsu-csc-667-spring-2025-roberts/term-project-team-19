@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <% styles.forEach(function(style) { %>
+        <link rel="stylesheet" href="<%= style %>">
+    <% }); %>
+</head>
+<body>
+    <div class="auth-container">
+        <h1 class="auth-title">Login to UNO Game</h1>
+        <form id="login-form" class="auth-form">
+            <input type="text" id="username" placeholder="Username" required>
+            <input type="password" id="password" placeholder="Password" required>
+            <button type="submit">Login</button>
+            <div id="error-message" class="error-message"></div>
+        </form>
+        <div class="auth-links">
+            <a href="/register">Don't have an account? Register</a>
+        </div>
+    </div>
+    <script src="/js/login.js"></script>
+</body>
+</html> 
