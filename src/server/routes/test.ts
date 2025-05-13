@@ -1,6 +1,10 @@
 import { Router } from 'express';
+
+import { Request, Response } from "express";
+
 import { AuthenticatedRequest, AuthenticatedRequestHandler } from '../types';
 import { requireAuth } from '../middleware/auth';
+import { socket } from '../../client/socket';
 
 const router = Router();
 
@@ -17,5 +21,13 @@ const testHandler: AuthenticatedRequestHandler = (req, res) => {
 };
 
 router.get('/test', requireAuth, testHandler);
+
+router.get("/socket", (request: Request, response: Response) =>{
+    const io = request.app.get("io");
+
+    io.emit("test", { user: request.session.user})
+
+    response.json({ message: "socket event emitted" });
+});
 
 export default router; 
