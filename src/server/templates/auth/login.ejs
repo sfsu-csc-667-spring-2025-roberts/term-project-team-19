@@ -1,0 +1,25 @@
+<html lang="en">
+    <head>
+    </head>
+    <body>
+        <form action="/auth/signin" method="post">
+            <h1>Login</h1>
+            <% if(locals.error && error) { %>
+                <p style="color:red"><%= error %></p>
+           <% } %>
+
+           <div>
+            <label for="username">Email</label>
+            <input type="email" name="email" id="email" required placeholder="Email address"
+                <% if(locals.email && email) {%>
+                    value="<%= email %>"
+                <% } %>
+            />
+           </div>
+
+           <button type="submit">Register</button>
+
+           <a href="/auth/signup">Don't have an account? Register</a>
+        </form>
+    </body>
+</html>
