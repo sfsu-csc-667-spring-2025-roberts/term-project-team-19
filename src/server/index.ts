@@ -15,6 +15,8 @@ dotenv.config();
 import rootRoutes from "./routes/root";
 import authRoutes from "./routes/auth";
 import gamesRoutes from "./routes/games";
+import lobbyRoutes from "./routes/lobby";
+
 import testRoutes from "./routes/test";
 import { timeMiddleware } from "./middleware/time";
 
@@ -65,6 +67,8 @@ app.use("/", rootRoutes);
 // redirect to auth
 app.use("/auth", authRoutes);
 app.use("/games", gamesRoutes);
+app.use("/lobby", lobbyRoutes);
+
 
 // app.use((_, __, next) => {
 //   next(httpErrors(404));
