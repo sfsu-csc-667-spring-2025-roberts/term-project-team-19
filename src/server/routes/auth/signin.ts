@@ -61,7 +61,9 @@ const signinHandler: RequestHandler = async (req, res) => {
       game_id: 0,
       token: token,
     };
+    res.redirect("/lobby");
 
+<<<<<<< HEAD
     // Save session explicitly
     req.session.save((err) => {
       if (err) {
@@ -77,6 +79,10 @@ const signinHandler: RequestHandler = async (req, res) => {
         user: req.session.user,
       });
     });
+=======
+    // Return success response (excluding password hash)
+    //const { password_hash, ...userWithoutPassword } = user.toJSON();
+>>>>>>> chat-feature
   } catch (error) {
     console.error("Signin error:", error);
     res.status(500).json({ error: "Internal server error" });

@@ -15,6 +15,8 @@ dotenv.config();
 import rootRoutes from "./routes/root";
 import authRoutes from "./routes/auth";
 import gamesRoutes from "./routes/games";
+import lobbyRoutes from "./routes/lobby";
+
 import testRoutes from "./routes/test";
 import { timeMiddleware } from "./middleware/time";
 
@@ -59,7 +61,11 @@ app.use(
   }),
 );
 
+<<<<<<< HEAD
 app.use(express.static(path.join(process.cwd(), "src", "client", "public")));
+=======
+app.use(express.static(path.join(process.cwd(), "public")));
+>>>>>>> chat-feature
 app.set("views", path.join(process.cwd(), "src", "server", "templates"));
 app.set("view engine", "ejs");
 
@@ -67,6 +73,10 @@ app.use("/", rootRoutes);
 // redirect to auth
 app.use("/auth", authRoutes);
 app.use("/games", gamesRoutes);
+app.use("/lobby", lobbyRoutes);
+app.use("/test", testRoutes);
+
+
 
 // app.use((_, __, next) => {
 //   next(httpErrors(404));

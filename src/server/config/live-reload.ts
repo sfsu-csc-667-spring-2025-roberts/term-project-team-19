@@ -1,2 +1,22 @@
-import { Express } from "express";
-export default function liveReload(app: Express) {}
+import path from "path";
+
+import type { Express } from "express";
+
+const configureReload = (app: Express) => {
+    if(process.env.NODE_ENV !== "development"){
+        return;
+    }
+
+    const reloadServer = require("livereload").createServer();
+    const connectLiveReload = require("connect-livereload");
+
+    reloadServer.watch(path.join(process.cwd(), "public", "js"));
+    reloadServer.server.once("connection", () => {
+        setTimeout(() => {
+            reloadServer.refresh("/");
+        }, 100)
+    });
+    app.use(connectLiveReload());
+};
+
+export default configureReload;
