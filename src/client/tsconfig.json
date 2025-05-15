@@ -1,15 +1,16 @@
 {
   "compilerOptions": {
-    "target": "es2018",
-    "module": "commonjs",
-    "outDir": "./dist",
-    "rootDir": "./",
-    "strict": true,
+    "outDir": "public/js",
+    "rootDir": ".",
+    "module": "ESNext",
+    "target": "ES2017",
+    "moduleResolution": "node",
     "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "moduleResolution": "node"
+    "strict": true
   },
-  "include": ["**/*"],
-  "exclude": ["node_modules", "dist"]
+  "include": [
+    "socket/**/*",
+    "chat/**/*"
+  ],
+  "exclude": ["node_modules"]
 }

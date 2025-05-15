@@ -1,63 +1,39 @@
-<<<<<<< HEAD
-<html lang="en">
-    <head>
-    </head>
-    <body>
-        <form action="/auth/signin" method="post">
-            <h1>Login</h1>
-            <% if(locals.error && error) { %>
-                <p style="color:red"><%= error %></p>
-           <% } %>
-
-           <div>
-            <label for="username">Email</label>
-            <input type="email" name="email" id="email" required placeholder="Email address"
-                <% if(locals.email && email) {%>
-                    value="<%= email %>"
-                <% } %>
-            />
-           </div>
-
-           <button type="submit">Register</button>
-
-           <a href="/auth/signup">Don't have an account? Register</a>
-        </form>
-    </body>
-</html>
-=======
-<!-- src/server/templates/login.ejs -->
+<!-- src/server/templates/auth/login.ejs -->
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <title>Login</title>
   </head>
   <body>
-    <form action="/auth/signin" method="post">
+    <form action="/auth/login" method="post">
       <h1>Login</h1>
       <% if (error) { %>
         <p style="color:red"><%= error %></p>
       <% } %>
 
-      <label for="email">Email</label>
-      <input
-        type="email"
-        name="email"
-        id="email"
-        required
-        value="<%= email %>"
-      />
+      <div>
+        <label for="email">Email</label>
+        <input
+          type="email"
+          name="email"
+          id="email"
+          required
+          value="<%= email %>"
+        />
+      </div>
 
-      <label for="password">Password</label>
-      <input
-        type="password"
-        name="password"
-        id="password"
-        required
-      />
+      <div>
+        <label for="password">Password</label>
+        <input
+          type="password"
+          name="password"
+          id="password"
+          required
+        />
+      </div>
 
       <button type="submit">Login</button>
       <a href="/auth/signup">Register</a>
     </form>
   </body>
 </html>
->>>>>>> chat-feature
