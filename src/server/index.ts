@@ -59,7 +59,7 @@ app.use(
   }),
 );
 
-app.use(express.static(path.join(process.cwd() + "public")));
+app.use(express.static(path.join(process.cwd(), "public")));
 app.set("views", path.join(process.cwd(), "src", "server", "templates"));
 app.set("view engine", "ejs");
 
@@ -68,6 +68,8 @@ app.use("/", rootRoutes);
 app.use("/auth", authRoutes);
 app.use("/games", gamesRoutes);
 app.use("/lobby", lobbyRoutes);
+app.use("/test", testRoutes);
+
 
 
 // app.use((_, __, next) => {

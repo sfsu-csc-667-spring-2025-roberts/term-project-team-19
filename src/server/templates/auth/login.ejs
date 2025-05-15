@@ -1,0 +1,35 @@
+<!-- src/server/templates/login.ejs -->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Login</title>
+  </head>
+  <body>
+    <form action="/auth/signin" method="post">
+      <h1>Login</h1>
+      <% if (error) { %>
+        <p style="color:red"><%= error %></p>
+      <% } %>
+
+      <label for="email">Email</label>
+      <input
+        type="email"
+        name="email"
+        id="email"
+        required
+        value="<%= email %>"
+      />
+
+      <label for="password">Password</label>
+      <input
+        type="password"
+        name="password"
+        id="password"
+        required
+      />
+
+      <button type="submit">Login</button>
+      <a href="/auth/signup">Register</a>
+    </form>
+  </body>
+</html>

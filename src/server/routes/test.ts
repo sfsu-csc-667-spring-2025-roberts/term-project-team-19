@@ -25,6 +25,7 @@ router.get('/test', requireAuth, testHandler);
 router.get("/socket", (request: Request, response: Response) =>{
     const io = request.app.get("io");
 
+    //@ts-ignore
     io.emit("test", { user: request.session.user})
 
     response.json({ message: "socket event emitted" });

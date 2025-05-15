@@ -47,13 +47,10 @@ const signinHandler: RequestHandler = async (req, res) => {
       email: user.email,
       game_id: 0,
     };
+    res.redirect("/lobby");
 
     // Return success response (excluding password hash)
-    const { password_hash, ...userWithoutPassword } = user.toJSON();
-    res.status(200).json({
-      message: "Sign in successful",
-      user: userWithoutPassword,
-    });
+    //const { password_hash, ...userWithoutPassword } = user.toJSON();
   } catch (error) {
     console.error("Signin error:", error);
     res.status(500).json({ error: "Internal server error" });
