@@ -7,6 +7,21 @@ import jwt from "jsonwebtoken";
 const authRouter = Router();
 const router = Router();
 
+authRouter.get("/login", (req, res) => {
+  res.render("auth/login", {
+    error: (req.query.error as string) || null,
+    email: (req.query.email as string) || "",
+  });
+});
+
+authRouter.get("/signup", (req, res) => {
+  res.render("auth/register", {
+    error: (req.query.error as string) || null,
+    username: (req.query.username as string) || "",
+    email: (req.query.email as string) || ""
+  });
+});
+
 authRouter.post("/signup", signupRouter);
 authRouter.post("/login", signinHandler);
 authRouter.post("/signout", signoutHandler);

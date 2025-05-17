@@ -1,0 +1,49 @@
+<!-- src/server/templates/auth/register.ejs -->
+<html lang="en">
+  <head>
+    <title>skip-bo | Register</title>
+  </head>
+  <body>
+    <form action="/auth/signup" method="post">
+      <h1>Register</h1>
+
+      <% if (error) { %>
+        <p style="color:red"><%= error %></p>
+      <% } %>
+
+      <div>
+        <label for="username">Username</label>
+        <input
+          type="text"
+          name="username"
+          id="username"
+          required
+          value="<%= locals.username || "" %>"
+        />
+      </div>
+
+      <div>
+        <label for="email">Email</label>
+        <input
+          type="email"
+          name="email"
+          id="email"
+          required
+          value="<%= locals.email || "" %>"
+        />
+      </div>
+
+      <div>
+        <label for="password">Password</label>
+        <input
+          type="password"
+          name="password"
+          id="password"
+          required
+        />
+      </div>
+
+      <button type="submit">Register</button>
+    </form>
+  </body>
+</html>

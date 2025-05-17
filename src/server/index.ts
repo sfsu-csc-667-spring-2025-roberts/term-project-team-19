@@ -8,6 +8,9 @@ import cookieParser from "cookie-parser";
 import session from "express-session";
 import cors from "cors";
 import dotenv from "dotenv";
+import type { RequestHandler } from 'express';
+
+
 
 // Load environment variables
 dotenv.config();
@@ -15,6 +18,10 @@ dotenv.config();
 import rootRoutes from "./routes/root";
 import authRoutes from "./routes/auth";
 import gamesRoutes from "./routes/games";
+import lobbyRoutes from "./routes/lobby";
+import chatRoutes from "./routes/chat";
+import { requireChatUser } from "./middleware/chatAuth";
+
 import testRoutes from "./routes/test";
 import { timeMiddleware } from "./middleware/time";
 
@@ -29,7 +36,7 @@ const PORT = process.env.PORT || 3000;
 // CORS middleware
 app.use(
   cors({
-    origin: ["http://localhost:3001", "http://localhost:5173"],
+    origin: ["http://localhost:3001","http://localhost:3000",  "http://localhost:5173"],
     credentials: true,
   }),
 );
@@ -39,14 +46,16 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 // Configure session
+config.liveReload(app)
 config.session(app);
+config.sockets(io, app);
 
 app.use(morgan("dev"));
 app.use(cookieParser());
 
 // Session middleware
 app.use(
-  session({
+  (session({
     secret: process.env.SESSION_SECRET || "your-secret-key",
     resave: true,
     saveUninitialized: true,
@@ -56,10 +65,12 @@ app.use(
       sameSite: "lax",
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
     },
-  }),
+  }) as unknown) as RequestHandler
 );
 
 app.use(express.static(path.join(process.cwd(), "src", "client", "public")));
+app.use(express.static(path.join(process.cwd(), "public")));                  // CSS, chat, etc.
+
 app.set("views", path.join(process.cwd(), "src", "server", "templates"));
 app.set("view engine", "ejs");
 
@@ -67,6 +78,14 @@ app.use("/", rootRoutes);
 // redirect to auth
 app.use("/auth", authRoutes);
 app.use("/games", gamesRoutes);
+
+app.use("/chat", requireChatUser, chatRoutes);
+
+
+app.use("/lobby", lobbyRoutes);
+app.use("/test", testRoutes);
+
+
 
 // app.use((_, __, next) => {
 //   next(httpErrors(404));
