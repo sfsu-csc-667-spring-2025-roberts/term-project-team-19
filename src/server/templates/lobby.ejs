@@ -1,46 +1,43 @@
+<!-- src/server/templates/lobby.ejs -->
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <title>Skip-bo | Lobby</title>
   <%- include('shared/head') %>
-
-  <!-- Load Socket.IO’s client bundle -->
-  <script src="/socket.io/socket.io.js"></script>
-
-  <!-- Then load your own ES modules -->
-  <script type="module" src="/js/socket/index.js"></script>
-  <script type="module" src="/js/chat/index.js"></script>
 </head>
 
 <body>
-  <%- include('shared/menu') %>
+  <div id="container">
+    <%- include('shared/menu') %>
 
-  <h1>Welcome <%= user.email %></h1>
-  <a id="test-click-me" href="#">Click me</a>
+    <h1>
+      <img
+        class="gravatar"
+        src="https://gravatar.com/avatar/<%= user.gravatar %>"
+      />
+      Welcome <%= user.email %> (<%= user.id %>)
+    </h1>
 
-  <script>
-    document.getElementById('test-click-me').addEventListener('click', function (e) {
-      e.preventDefault();
+    <div id="lobby-container">
+      <section>Games goes here</section>
+      <section id="chat">
+        <div></div>
+        <form class="chat-form">
+          <input
+            type="text"
+            id="message"
+            name="message"
+            placeholder="type your message here..."
+          />
+          <button type="submit">Send</button>
+        </form>
+      </section>
+    </div>
+  </div>
 
-      fetch("/test/socket", { credentials: "include" })
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error("Network is not ok");
-          }
-          return response.json();
-        })
-        .then((data) => {
-          console.log(data);
-        })
-        .catch((error) => {
-          console.error("there was a problem with the fetch operation: ", error);
-        });
-    });
-  </script>
-
-  <ul>
-    <li>id: <%= user.id %></li>
-    <li>gravatar: <%= user.gravatar %></li>
-  </ul>
+  <!-- scripts load after all DOM nodes exist -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script type="module" src="/js/socket/index.js"></script>
+  <script type="module" src="/js/chat/index.js"></script>
 </body>
 </html>

@@ -1,0 +1,41 @@
+body{
+    font-family: Arial, Helvetica, sans-serif;
+}
+#container{
+    width: 800px;
+    margin: 0 auto;
+    height: 100%;
+}
+menu ul{
+    display: flex;
+    flex-direction: row;
+    list-style-type: none;
+    margin-right: 10px;
+}
+menu ul li {
+    margin-right: 10px;
+}
+img.gravatar {
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+}
+#lobby-container{
+    display: flex;
+}
+#lobby-container section{
+    width: 50%;
+    border: 1px solid #ccc;
+}
+
+section {
+    height: 300px;
+    border: 1px solid green;
+}
+
+section#chat {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
