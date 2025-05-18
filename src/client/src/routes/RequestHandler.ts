@@ -53,6 +53,15 @@ export class RequestHandler {
     }
   };
 
+  public handleLogout = async (req: AuthenticatedRequest, res: Response) => {
+    await this.auth.logout();
+    if (res.statusCode === 200) {
+      res.redirect("/login");
+    } else {
+      res.status(500).json({ error: "Logout failed" });
+    }
+  };
+
   public requireAuth = async (
     req: AuthenticatedRequest,
     res: Response,

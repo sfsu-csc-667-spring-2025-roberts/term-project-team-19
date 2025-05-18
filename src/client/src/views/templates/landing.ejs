@@ -79,15 +79,30 @@
     
     <!-- Main lobby script -->
     <script type="module">
-
         document.addEventListener('DOMContentLoaded', () => {
+            // Add logout handler
+            document.getElementById('logout-button').addEventListener('click', async () => {
+                try {
+                    const response = await fetch('http://localhost:3001/logout', {
+                        method: 'POST',
+                        credentials: 'include'
+                    });
+                    
+                    if (response.ok) {
+                        window.location.href = '/login';
+                    } else {
+                        console.error("Failed to logout");
+                    }
+                } catch (error) {
+                    console.error("Error during logout:", error);
+                }
+            });
             
             // Add click handlers for join game buttons
             document.querySelectorAll('.join-game-button').forEach(button => {
                 const gameId = button.dataset.gameId;
                 if (gameId) {
                     button.onclick = async () => {
-                        console.log("Joining game:", gameId);
                         try {
                             const response = await fetch(`http://localhost:3001/games/${gameId}/join`, {
                                 method: 'POST',

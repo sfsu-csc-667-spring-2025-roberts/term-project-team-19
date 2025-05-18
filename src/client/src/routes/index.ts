@@ -58,6 +58,12 @@ router.post(
 );
 
 router.post(
+  "/logout",
+  requestHandler.handleLogout,
+  (req: Request, res: Response) => {},
+);
+
+router.post(
   "/register",
   requestHandler.handleRegister,
   (req: Request, res: Response) => {

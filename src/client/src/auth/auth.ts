@@ -102,7 +102,7 @@ export class Auth {
 
   public async logout(): Promise<void> {
     try {
-      await fetch(`${SERVER_URL}/auth/logout`, {
+      await fetch(`${SERVER_URL}/auth/signout`, {
         method: "POST",
         credentials: "include",
       });
