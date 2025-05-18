@@ -15,11 +15,13 @@ export class LobbyView extends BaseView {
 
   protected async getData(): Promise<Record<string, any>> {
     const games = await this.gameManager.fetchGames();
+    const user = this.gameManager.getUser();
 
     return {
       title: "Game Lobby",
       styles: ["/styles.css"],
       games: games,
+      user: user,
     };
   }
 }

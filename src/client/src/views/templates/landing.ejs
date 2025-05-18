@@ -16,7 +16,7 @@
             <div class="header-content">
                 <h1>UNO Game Lobby</h1>
                 <div class="header-actions">
-                    <span class="welcome-text" id="welcome-text">Welcome, <%= locals.user?.username || 'Guest' %>!</span> 
+                    <span class="welcome-text" id="welcome-text">Welcome, <%= user?.username || 'Guest' %>!</span> 
                     <!-- TODO: Fix username display -->
                     <button class="icon-button" id="refresh-button">↻</button>
                     <button class="icon-button" id="logout-button">⇥</button>
@@ -76,10 +76,6 @@
             </div>
         </div>
     </div>
-
-    <!-- Core dependencies -->
-    <script type="module" src="/js/game/game.js"></script>
-    <script type="module" src="/js/types/game.js"></script>
     
     <!-- Main lobby script -->
     <script type="module">
