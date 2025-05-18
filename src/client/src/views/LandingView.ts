@@ -10,12 +10,11 @@ export class LobbyView extends BaseView {
   }
 
   protected getTemplate(): string {
-    return "lobby";
+    return "landing";
   }
 
   protected async getData(): Promise<Record<string, any>> {
     const games = await this.gameManager.fetchGames();
-    console.log(games);
 
     return {
       title: "Game Lobby",
