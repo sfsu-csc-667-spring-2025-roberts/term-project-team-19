@@ -1,5 +1,5 @@
 import { GameStatus } from "../types/game.js";
-import { Auth } from "../auth/auth";
+import { Auth } from "./auth";
 
 export interface GameLobbyItem {
   id: number;

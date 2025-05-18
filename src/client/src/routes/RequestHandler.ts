@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction, response } from "express";
-import { Auth } from "../auth/auth";
-import { GameManager } from "../game/game";
+import { Auth } from "../middleware/auth";
+import { GameManager } from "../middleware/game";
 import { AuthenticatedRequest } from "../types";
 
 export class RequestHandler {

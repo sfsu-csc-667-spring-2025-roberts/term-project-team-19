@@ -1,5 +1,5 @@
 import { BaseView } from "./BaseView";
-import { GameManager } from "../game/game";
+import { GameManager } from "../middleware/game";
 
 export class LobbyView extends BaseView {
   private gameManager: GameManager;

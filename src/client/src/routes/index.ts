@@ -4,8 +4,8 @@ import { LoginView } from "../views/LoginView";
 import { RegisterView } from "../views/RegisterView";
 import { LobbyView } from "../views/LandingView";
 import { GameView } from "../views/GameView";
-import { GameManager } from "../game/game";
-import { Auth } from "../auth/auth";
+import { GameManager } from "../middleware/game";
+import { Auth } from "../middleware/auth";
 
 const router = Router();
 const requestHandler = RequestHandler.getInstance();
