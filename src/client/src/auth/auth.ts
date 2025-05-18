@@ -80,26 +80,23 @@ export class Auth {
     username: string,
     email: string,
     password: string,
-  ): Promise<boolean> {
+  ): Promise<Response> {
     try {
-      const response = await fetch(`${SERVER_URL}/auth/register`, {
+      const response = await fetch(`${SERVER_URL}/auth/signup`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ username, email, password }),
       });
-
-      if (response.ok) {
-        const user = await response.json();
-        this.currentUser = user;
-        this.notifyListeners();
-        return true;
-      }
-      return false;
+      console.log("response: ", response);
+      return response;
     } catch (error) {
       console.error("Registration failed:", error);
-      return false;
+      // return 500 error
+      return new Response(JSON.stringify({ message: "Registration failed" }), {
+        status: 500,
+      });
     }
   }
 
