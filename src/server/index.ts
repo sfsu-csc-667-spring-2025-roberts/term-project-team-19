@@ -7,6 +7,7 @@ import httpErrors from "http-errors";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
 import session from "express-session";
+import connectPgSimple from "connect-pg-simple";
 import cors from "cors";
 import dotenv from "dotenv";
 
@@ -19,6 +20,7 @@ import chatRouter from "./routes/chat";
 import { timeMiddleware } from "./middleware/time";
 
 import * as config from "./config";
+import { sessionMiddleware } from "./config/session";
 
 const app = express();
 const server = http.createServer(app);
@@ -38,26 +40,10 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// Configure session
-config.session(app);
-
 app.use(morgan("dev"));
 app.use(cookieParser());
 
-// Session middleware
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET || "your-secret-key",
-    resave: true,
-    saveUninitialized: true,
-    cookie: {
-      secure: process.env.NODE_ENV === "production",
-      httpOnly: true,
-      sameSite: "lax",
-      maxAge: 24 * 60 * 60 * 1000, // 24 hours
-    },
-  }) as unknown as RequestHandler,
-);
+app.use(sessionMiddleware);
 
 app.use(express.static(path.join(process.cwd(), "src", "client", "public")));
 app.set("views", path.join(process.cwd(), "src", "server", "templates"));
@@ -68,9 +54,9 @@ app.use("/auth", authRoutes);
 app.use("/games", gamesRoutes);
 app.use("/chat", chatRouter);
 
-// app.use((_, __, next) => {
-//   next(httpErrors(404));
-// });
+app.use((_, __, next) => {
+  next(httpErrors(404));
+});
 
 try {
   io.on("connection", (socket: any) => {
