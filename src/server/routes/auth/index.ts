@@ -15,6 +15,7 @@ authRouter.post("/check", (req, res) => {
     console.log("=== Auth Check ===");
     console.log("Headers:", JSON.stringify(req.headers, null, 2));
     console.log("Session:", JSON.stringify(req.session.user, null, 2));
+    console.log("================================================\n\n");
 
     const authHeader = req.headers.authorization;
     if (!authHeader) {
@@ -28,7 +29,6 @@ authRouter.post("/check", (req, res) => {
       process.env.SESSION_SECRET!,
     ) as jwt.JwtPayload;
 
-    console.log(decoded);
     if (!decoded) {
       res.status(401).json({ error: "Invalid token" });
       return;
