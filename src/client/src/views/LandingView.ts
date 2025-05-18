@@ -1,7 +1,7 @@
 import { BaseView } from "./BaseView";
 import { GameManager } from "../middleware/game";
 
-export class LobbyView extends BaseView {
+export class LandingView extends BaseView {
   private gameManager: GameManager;
 
   constructor(gameManager: GameManager) {

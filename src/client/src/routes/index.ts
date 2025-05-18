@@ -2,7 +2,7 @@ import { Router, Request, Response } from "express";
 import { RequestHandler } from "./RequestHandler";
 import { LoginView } from "../views/LoginView";
 import { RegisterView } from "../views/RegisterView";
-import { LobbyView } from "../views/LandingView";
+import { LandingView } from "../views/LandingView";
 import { GameView } from "../views/GameView";
 import { GameManager } from "../middleware/game";
 import { Auth } from "../middleware/auth";
@@ -16,7 +16,7 @@ router.get(
   "/",
   requestHandler.requireAuth,
   async (req: Request, res: Response) => {
-    await new LobbyView(gameManager).render(res);
+    await new LandingView(gameManager).render(res);
   },
 );
 
@@ -26,7 +26,7 @@ router.get(
   requestHandler.requireAuth,
   async (req: Request, res: Response) => {
     console.log("Lobby route");
-    await new LobbyView(gameManager).render(res);
+    await new LandingView(gameManager).render(res);
   },
 );
 
