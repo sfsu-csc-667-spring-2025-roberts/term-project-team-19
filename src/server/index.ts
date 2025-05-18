@@ -13,9 +13,8 @@ import dotenv from "dotenv";
 // Load environment variables
 dotenv.config();
 
-import rootRoutes from "./routes/root";
 import authRoutes from "./routes/auth";
-import gamesRoutes from "./routes/games";
+import gamesRoutes from "./routes/game";
 import chatRouter from "./routes/chat";
 import { timeMiddleware } from "./middleware/time";
 
@@ -23,7 +22,7 @@ import * as config from "./config";
 
 const app = express();
 const server = http.createServer(app);
-const io = new SocketIOServer(server, { cors: { origin: "*" } });
+export const io = new SocketIOServer(server, { cors: { origin: "*" } });
 
 const PORT = process.env.PORT || 3000;
 
@@ -64,7 +63,6 @@ app.use(express.static(path.join(process.cwd(), "src", "client", "public")));
 app.set("views", path.join(process.cwd(), "src", "server", "templates"));
 app.set("view engine", "ejs");
 
-app.use("/", rootRoutes);
 // redirect to auth
 app.use("/auth", authRoutes);
 app.use("/games", gamesRoutes);

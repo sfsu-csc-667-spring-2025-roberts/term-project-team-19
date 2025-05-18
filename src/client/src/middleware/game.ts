@@ -52,7 +52,7 @@ export class GameManager {
 
   public async fetchGames(): Promise<GameLobbyItem[]> {
     try {
-      const response = await fetch(`http://localhost:3000/games`, {
+      const response = await fetch(`http://localhost:3000/games/`, {
         credentials: "include",
         method: "GET",
         headers: this.getAuthHeaders(),
@@ -105,7 +105,6 @@ export class GameManager {
       credentials: "include",
       headers: this.getAuthHeaders(),
     });
-    console.log("request", request);
     try {
       const response = await fetch(request);
       console.log("response", response);

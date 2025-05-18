@@ -14,7 +14,19 @@ const configureSockets = (io: Server, app: Express) => {
     console.log(
       `User [${user.id}] connected: ${user.email} with session id: ${id}`,
     );
+
     socket.join(user.id);
+
+    // Handle game-related events
+    socket.on("joinGame", (gameId: string) => {
+      socket.join(`game_${gameId}`);
+      console.log(`User [${user.id}] joined game room: game_${gameId}`);
+    });
+
+    socket.on("leaveGame", (gameId: string) => {
+      socket.leave(`game_${gameId}`);
+      console.log(`User [${user.id}] left game room: game_${gameId}`);
+    });
 
     socket.on("disconnect", () => {
       console.log(

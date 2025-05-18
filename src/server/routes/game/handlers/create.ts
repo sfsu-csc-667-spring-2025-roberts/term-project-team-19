@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { Game, User } from "../../../db/schema";
 import { GameStatus } from "../../../enum/enums";
 import { Op } from "sequelize";
+import { io } from "../../../index"; // Add this import
 import {
   GameInstance,
   UserInstance,
@@ -51,6 +52,13 @@ export const createGameHandler: AuthenticatedRequestHandler = async (
   const newGame = (await Game.create({
     host_id: host_id,
   })) as GameInstance;
+
+  const io = req.app.get("io");
+  io.to(`game_${newGame.id}`).emit("playerJoined", {
+    userId: user.id,
+    username: user.username,
+    seatNumber: 1,
+  });
 
   await db_user.update({ game_id: newGame.id });
   user.game_id = newGame.id;

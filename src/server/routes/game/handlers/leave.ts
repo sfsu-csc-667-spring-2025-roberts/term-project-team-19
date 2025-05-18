@@ -2,6 +2,7 @@ import { Response } from "express";
 import { Game, User } from "../../../db/schema";
 import { GameStatus } from "../../../enum/enums";
 import { Op } from "sequelize";
+import { io } from "../../../index";
 import {
   AuthenticatedRequestHandler,
   AuthenticatedRequest,
@@ -67,6 +68,11 @@ export const leaveGameHandler: AuthenticatedRequestHandler = async (
       await game.update({ member_4_id: null });
       break;
   }
+
+  io.to(`game_${game.id}`).emit("playerLeft", {
+    userId: user.id,
+    username: user.username,
+  });
 
   await db_user.update({ game_id: null });
   user.game_id = 0;

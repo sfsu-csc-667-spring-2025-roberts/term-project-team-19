@@ -5,17 +5,16 @@ import startGameHandler from "./handlers/start";
 import { getGamesHandler } from "./handlers/get";
 import { leaveGameHandler } from "./handlers/leave";
 import { endGameHandler } from "./handlers/end";
+import { requireAuth } from "../../middleware/auth";
 const gameRouter = Router();
 const router = Router();
 
-gameRouter.post("/create", createGameHandler);
-gameRouter.post("/:game_id/join", joinGameHandler);
-gameRouter.post("/:game_id/leave", leaveGameHandler);
-gameRouter.post("/:game_id/end", endGameHandler);
-gameRouter.post("/:game_id/start", startGameHandler);
+gameRouter.post("/create", requireAuth, createGameHandler);
+gameRouter.post("/:game_id/join", requireAuth, joinGameHandler);
+gameRouter.post("/:game_id/leave", requireAuth, leaveGameHandler);
+gameRouter.post("/:game_id/end", requireAuth, endGameHandler);
+gameRouter.post("/:game_id/start", requireAuth, startGameHandler);
 
 gameRouter.get("/", getGamesHandler);
 
-router.use("/games", gameRouter);
-
-export default router;
+export default gameRouter;

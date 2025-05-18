@@ -2,14 +2,17 @@ import { Request, Response, NextFunction, response } from "express";
 import { Auth } from "../middleware/auth";
 import { GameManager } from "../middleware/game";
 import { AuthenticatedRequest } from "../types";
-
+import { SocketManager } from "../middleware/socket";
 export class RequestHandler {
   private static instance: RequestHandler;
   public auth: Auth;
   public gameManager: GameManager;
+  public socketManager: SocketManager;
+
   private constructor() {
     this.auth = Auth.getInstance();
     this.gameManager = GameManager.getInstance();
+    this.socketManager = SocketManager.getInstance();
   }
 
   public static getInstance(): RequestHandler {
@@ -91,18 +94,36 @@ export class RequestHandler {
 
   public handleJoinGame = async (req: AuthenticatedRequest, res: Response) => {
     const user = this.auth.getUser();
+    const game_id = parseInt(req.params.id);
     if (!user) {
       res.status(500).json({ error: "User not found" });
       return;
     }
-    const response = await this.gameManager.joinGame(
-      parseInt(req.params.id),
-      user.id,
-    );
-    if (response) {
+    const game_joined = await this.gameManager.joinGame(game_id, user.id);
+
+    if (game_joined) {
+      this.socketManager.joinGame(game_id);
       res.redirect(`/game/${req.params.id}`);
     } else {
       res.status(500).json({ error: "Failed to join game" });
+    }
+  };
+
+  public handleCreateGame = async (
+    req: AuthenticatedRequest,
+    res: Response,
+  ) => {
+    const user = this.auth.getUser();
+    if (!user) {
+      res.status(500).json({ error: "User not found" });
+      return;
+    }
+    const game_id = await this.gameManager.createGame(user.id);
+    if (game_id) {
+      this.socketManager.joinGame(game_id);
+      res.redirect(`/game/${game_id}`);
+    } else {
+      res.status(500).json({ error: "Game creation failed" });
     }
   };
 }
