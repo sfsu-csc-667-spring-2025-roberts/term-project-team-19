@@ -50,6 +50,20 @@ export class GameManager {
     };
   }
 
+  public async fetchGame(gameId: number): Promise<GameLobbyItem | null> {
+    const response = await fetch(`http://localhost:3000/games/${gameId}`, {
+      credentials: "include",
+      method: "GET",
+      headers: this.getAuthHeaders(),
+    });
+    console.log("response", response);
+    if (response.ok) {
+      const game = await response.json();
+      return game;
+    }
+    return null;
+  }
+
   public async fetchGames(): Promise<GameLobbyItem[]> {
     try {
       const response = await fetch(`http://localhost:3000/games/`, {

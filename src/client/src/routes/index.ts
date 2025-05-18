@@ -3,6 +3,7 @@ import { RequestHandler } from "./RequestHandler";
 import { LoginView } from "../views/LoginView";
 import { RegisterView } from "../views/RegisterView";
 import { LandingView } from "../views/LandingView";
+import { LobbyView } from "../views/LobbyView";
 import { GameView } from "../views/GameView";
 import { GameManager } from "../middleware/game";
 import { Auth } from "../middleware/auth";
@@ -22,10 +23,9 @@ router.get(
 
 // Protected routes
 router.get(
-  "/lobby",
+  "/landing",
   requestHandler.requireAuth,
   async (req: Request, res: Response) => {
-    console.log("Lobby route");
     await new LandingView(gameManager).render(res);
   },
 );
@@ -52,7 +52,7 @@ router.post(
   requestHandler.handleLogin,
   (req: Request, res: Response) => {
     if (res.statusCode === 200) {
-      res.redirect("/lobby");
+      res.redirect("/landing");
     }
   },
 );
@@ -88,6 +88,20 @@ router.post(
   (req: Request, res: Response) => {
     console.log("Game route");
     new GameView().render(res);
+  },
+);
+
+router.post(
+  "/games/create",
+  requestHandler.requireAuth,
+  requestHandler.handleCreateGame,
+);
+
+router.get(
+  "/games/:id/lobby",
+  requestHandler.requireAuth,
+  (req: Request, res: Response) => {
+    new LobbyView(gameManager, parseInt(req.params.id)).render(res);
   },
 );
 

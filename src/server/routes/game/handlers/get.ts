@@ -19,6 +19,8 @@ interface UserInstance extends Model {
 
 interface GamePlayerInstance extends Model {
   id: number;
+  user_id: number;
+  username: string;
   user: UserInstance;
 }
 
@@ -44,6 +46,7 @@ export async function getGamesHandler(req: Request, res: Response) {
             {
               model: User,
               attributes: ["id", "username"],
+              as: "user",
             },
           ],
         },
@@ -59,11 +62,86 @@ export async function getGamesHandler(req: Request, res: Response) {
       maxPlayers: 4, // Fixed at 4 players for UNO
       status: game.status,
       createdAt: game.created_at,
+      players: game.gamePlayers.map((player) => ({
+        id: player.user.id,
+        username: player.user.username,
+      })),
     }));
 
     res.json(formattedGames);
   } catch (error) {
     console.error("Error fetching games:", error);
     res.status(500).json({ error: "Failed to fetch games" });
+  }
+}
+
+export async function getGameHandler(req: Request, res: Response) {
+  try {
+    console.log("GET GAME HANDLER");
+    console.log("ID", req.params.game_id);
+    console.log("SESSION", req.session);
+    console.log("USER", req.session?.user);
+    console.log("--------------------------------");
+    const gameId = parseInt(req.params.game_id);
+
+    if (!gameId) {
+      res.status(400).json({ error: "Game ID is required" });
+      return;
+    }
+
+    // Get the specific game
+    const game = (await Game.findOne({
+      where: {
+        id: gameId,
+      },
+      include: [
+        {
+          model: User,
+          as: "host",
+          attributes: ["id", "username"],
+        },
+        {
+          model: GamePlayer,
+          as: "gamePlayers",
+          include: [
+            {
+              model: User,
+              as: "user",
+              attributes: ["id", "username"],
+            },
+          ],
+        },
+      ],
+    })) as GameInstance;
+
+    if (!game) {
+      res.status(404).json({ error: "Game not found" });
+      return;
+    }
+
+    // Add debug logging
+    console.log("Game query result:", JSON.stringify(game, null, 2));
+    console.log("GamePlayers:", game.gamePlayers);
+    console.log("First player user:", game.gamePlayers[0]?.user);
+
+    // Transform the data to match the client's expected format
+    const formattedGame = {
+      id: game.id,
+      hostUsername: game.host.username,
+      hostId: game.host.id,
+      players: game.gamePlayers.map((player) => ({
+        id: player.user.id,
+        username: player.user.username,
+      })),
+      playerCount: game.gamePlayers.length,
+      maxPlayers: 4, // Fixed at 4 players for UNO
+      status: game.status,
+      createdAt: game.created_at,
+    };
+
+    res.json(formattedGame);
+  } catch (error) {
+    console.error("Error fetching game:", error);
+    res.status(500).json({ error: "Failed to fetch game" });
   }
 }

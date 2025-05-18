@@ -1,0 +1,14 @@
+<nav class="main-nav">
+    <div class="nav-content">
+      <a href="/" class="nav-logo">Skip-bo</a>
+      <div class="nav-links">
+        <% if (user) { %>
+          <span class="welcome-text">Welcome, <%= user.username %></span>
+          <a href="/auth/logout" class="nav-link">Logout</a>
+        <% } else { %>
+          <a href="/auth/login" class="nav-link">Login</a>
+          <a href="/auth/register" class="nav-link">Register</a>
+        <% } %>
+      </div>
+    </div>
+  </nav>

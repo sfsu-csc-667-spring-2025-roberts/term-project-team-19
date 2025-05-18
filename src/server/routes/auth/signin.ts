@@ -65,20 +65,10 @@ const signinHandler: RequestHandler = async (req, res) => {
       token: token,
     };
 
-    // Save session explicitly
-    req.session.save((err) => {
-      if (err) {
-        console.error("Session save error:", err);
-        res.status(500).json({ error: "Failed to save session" });
-        return;
-      }
-
-      console.log("Session after:", req.session);
-      // Return success response
-      res.status(200).json({
-        message: "Sign in successful",
-        user: req.session.user,
-      });
+    // Return success response
+    res.status(200).json({
+      message: "Sign in successful",
+      user: req.session.user,
     });
   } catch (error) {
     console.error("Signin error:", error);

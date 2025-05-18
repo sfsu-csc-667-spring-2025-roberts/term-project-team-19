@@ -131,7 +131,7 @@ const GamePlayer = sequelize.define("GamePlayer", {
   },
 });
 
-GamePlayer.belongsTo(User, { foreignKey: "user_id" });
+GamePlayer.belongsTo(User, { foreignKey: "user_id", as: "user" });
 GamePlayer.belongsTo(Game, { foreignKey: "game_id" });
 Game.hasMany(GamePlayer, { foreignKey: "game_id", as: "gamePlayers" });
 
