@@ -1,11 +1,10 @@
 import express from "express";
-import getMessages from "./getMessages";
+import { Request, Response } from "express";
+import { ChatMessage } from "../../types";
+import { sendMessageHandler } from "./handlers/send";
 
-import postMessage from "./postMessage";
+const chatRouter = express.Router();
 
-const router = express.Router();
+chatRouter.post("/:game_id/send", sendMessageHandler);
 
-router.use(getMessages);
-router.use(postMessage);
-
-export default router;
+export default chatRouter;

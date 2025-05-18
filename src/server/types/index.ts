@@ -23,16 +23,24 @@ export interface UserInstance extends Model<UserAttributes>, UserAttributes {}
 
 export interface GameAttributes {
   id: number;
-  host_id: number;
-  member_2_id: number;
-  member_3_id: number;
-  member_4_id: number;
+  host_id: number | null;
+  member_2_id: number | null;
+  member_3_id: number | null;
+  member_4_id: number | null;
   status: GameStatus;
   current_turn: number;
   turn_direction: number;
 }
 
 export interface GameInstance extends Model<GameAttributes>, GameAttributes {}
+
+export interface ChatlogAttributes {
+  id: number;
+  game_id: number;
+  user_id: number;
+  message: string;
+  timestamp: number;
+}
 
 export interface CardDefinitionAttributes {
   id: number;
@@ -73,3 +81,10 @@ export type AuthenticatedRequestHandler = (
   req: AuthenticatedRequest,
   res: Response,
 ) => void | Promise<void>;
+
+export interface ChatMessage {
+  message: string;
+  sender: string;
+  gravatar?: string;
+  timestamp: number;
+}
