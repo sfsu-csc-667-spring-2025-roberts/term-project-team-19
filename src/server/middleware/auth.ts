@@ -1,5 +1,5 @@
 import { Response, NextFunction } from "express";
-import { AuthenticatedRequest } from "../types";
+import { AuthenticatedRequest, SessionUser } from "../types";
 import jwt from "jsonwebtoken";
 
 export const requireAuth = (
@@ -7,6 +7,7 @@ export const requireAuth = (
   res: Response,
   next: NextFunction,
 ) => {
+  console.log("=== Require Auth ===");
   console.log("Session:", JSON.stringify(req.session, null, 2));
   console.log(req.headers);
   // get authorization header
@@ -23,6 +24,7 @@ export const requireAuth = (
   ) as jwt.JwtPayload;
 
   console.log(decoded);
+  console.log("================================================\n\n");
   if (!decoded || !decoded.iat || !decoded.exp) {
     res.status(401).json({ error: "Invalid token" });
     return;
@@ -31,6 +33,13 @@ export const requireAuth = (
       res.status(401).json({ error: "Token expired" });
       return;
     } else {
+      req.session.user = {
+        id: decoded.id,
+        username: decoded.username,
+        email: decoded.email,
+        game_id: decoded.game_id,
+        token: token,
+      } as SessionUser;
     }
   }
 
