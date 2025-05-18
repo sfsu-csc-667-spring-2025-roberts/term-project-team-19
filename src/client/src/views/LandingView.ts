@@ -18,7 +18,7 @@ export class LandingView extends BaseView {
     const user = this.gameManager.getUser();
 
     return {
-      title: "Game Lobby",
+      title: "Landing",
       styles: ["/styles.css"],
       games: games,
       user: user,

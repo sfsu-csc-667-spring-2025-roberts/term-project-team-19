@@ -38,7 +38,7 @@ export class RequestHandler {
     if (response) {
       console.log(this.auth.getUser());
       console.log("Login successful");
-      res.redirect("/lobby");
+      res.redirect("/landing");
     } else {
       res.status(500).json({ error: "Login failed" });
     }
@@ -86,7 +86,7 @@ export class RequestHandler {
   ) => {
     const isAuth = await this.isAuthenticated();
     if (isAuth) {
-      res.redirect("/lobby");
+      res.redirect("/landing");
       return;
     }
     next();
@@ -103,7 +103,7 @@ export class RequestHandler {
 
     if (game_joined) {
       this.socketManager.joinGame(game_id);
-      res.redirect(`/game/${req.params.id}`);
+      res.redirect(`/games/${req.params.id}/lobby`);
     } else {
       res.status(500).json({ error: "Failed to join game" });
     }
@@ -121,7 +121,7 @@ export class RequestHandler {
     const game_id = await this.gameManager.createGame(user.id);
     if (game_id) {
       this.socketManager.joinGame(game_id);
-      res.redirect(`/game/${game_id}`);
+      res.redirect(`/games/${game_id}/lobby`);
     } else {
       res.status(500).json({ error: "Game creation failed" });
     }

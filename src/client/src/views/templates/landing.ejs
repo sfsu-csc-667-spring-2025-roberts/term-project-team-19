@@ -110,7 +110,7 @@
                             });
                             
                             if (response.ok) {
-                                window.location.href = `/game.html?id=${gameId}`;
+                                window.location.href = `/games/${gameId}/lobby`;
                             } else {
                                 console.error("Failed to join game");
                             }
