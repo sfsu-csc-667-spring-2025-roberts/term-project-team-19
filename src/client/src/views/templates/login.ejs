@@ -22,5 +22,34 @@
         </div>
     </div>
     <script src="/js/login.js"></script>
+    <script>
+        // Add event listener to login form
+        document.getElementById("login-form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+            const errorMessage = document.getElementById("error-message");
+
+            try {
+                // post to login route
+                const response = await fetch(`http://localhost:3001/login`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ username, password }),
+                });
+
+                if (response.ok) {
+                    window.location.href = "/lobby";
+                } else {
+                    errorMessage.textContent = "Invalid username or password";
+                }
+            } catch (error) {
+                errorMessage.textContent = "An error occurred. Please try again.";
+                console.error("Login error:", error);
+            }
+        });
+    </script>
 </body>
 </html> 
