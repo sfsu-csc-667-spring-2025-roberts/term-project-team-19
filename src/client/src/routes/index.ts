@@ -2,7 +2,7 @@ import { Router, Request, Response } from "express";
 import { RequestHandler } from "./RequestHandler";
 import { LoginView } from "../views/LoginView";
 import { RegisterView } from "../views/RegisterView";
-import { LobbyView } from "../views/LobbyView";
+import { LobbyView } from "../views/LandingView";
 import { GameView } from "../views/GameView";
 import { GameManager } from "../game/game";
 import { Auth } from "../auth/auth";
@@ -57,11 +57,31 @@ router.post(
   },
 );
 
+router.post(
+  "/register",
+  requestHandler.handleRegister,
+  (req: Request, res: Response) => {
+    if (res.statusCode === 200) {
+      res.redirect("/login");
+    }
+  },
+);
+
 router.get(
   "/register",
   requestHandler.redirectIfAuthenticated,
   (req: Request, res: Response) => {
     new RegisterView().render(res);
+  },
+);
+
+router.post(
+  "/games/:id/join",
+  requestHandler.requireAuth,
+  requestHandler.handleJoinGame,
+  (req: Request, res: Response) => {
+    console.log("Game route");
+    new GameView().render(res);
   },
 );
 

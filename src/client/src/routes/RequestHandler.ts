@@ -6,9 +6,10 @@ import { AuthenticatedRequest } from "../types";
 export class RequestHandler {
   private static instance: RequestHandler;
   public auth: Auth;
-
+  public gameManager: GameManager;
   private constructor() {
     this.auth = Auth.getInstance();
+    this.gameManager = GameManager.getInstance();
   }
 
   public static getInstance(): RequestHandler {
@@ -40,6 +41,18 @@ export class RequestHandler {
     }
   };
 
+  public handleRegister = async (req: AuthenticatedRequest, res: Response) => {
+    const { username, password, email } = req.body;
+    const response = await this.auth.register(username, password, email);
+    if (response.ok) {
+      res.redirect("/login");
+    } else {
+      const responseBody = await response.json();
+      console.log("responseBody: ", responseBody);
+      res.status(response.status).json(responseBody);
+    }
+  };
+
   public requireAuth = async (
     req: AuthenticatedRequest,
     res: Response,
@@ -65,5 +78,22 @@ export class RequestHandler {
       return;
     }
     next();
+  };
+
+  public handleJoinGame = async (req: AuthenticatedRequest, res: Response) => {
+    const user = this.auth.getUser();
+    if (!user) {
+      res.status(500).json({ error: "User not found" });
+      return;
+    }
+    const response = await this.gameManager.joinGame(
+      parseInt(req.params.id),
+      user.id,
+    );
+    if (response) {
+      res.redirect(`/game/${req.params.id}`);
+    } else {
+      res.status(500).json({ error: "Failed to join game" });
+    }
   };
 }
