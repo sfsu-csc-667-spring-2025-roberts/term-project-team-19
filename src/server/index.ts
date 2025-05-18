@@ -17,7 +17,6 @@ import rootRoutes from "./routes/root";
 import authRoutes from "./routes/auth";
 import gamesRoutes from "./routes/games";
 import chatRouter from "./routes/chat";
-import testRoutes from "./routes/test";
 import { timeMiddleware } from "./middleware/time";
 
 import * as config from "./config";
