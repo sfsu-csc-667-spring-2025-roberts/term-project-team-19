@@ -18,6 +18,7 @@ import authRoutes from "./routes/auth";
 import gamesRoutes from "./routes/game";
 import chatRouter from "./routes/chat";
 import { timeMiddleware } from "./middleware/time";
+import friendRoutes from "./routes/friends/index";
 
 import * as config from "./config";
 import { sessionMiddleware } from "./config/session";
@@ -53,6 +54,7 @@ app.set("view engine", "ejs");
 app.use("/auth", authRoutes);
 app.use("/games", gamesRoutes);
 app.use("/chat", chatRouter);
+app.use("/friendship", friendRoutes);
 
 app.use((_, __, next) => {
   next(httpErrors(404));
