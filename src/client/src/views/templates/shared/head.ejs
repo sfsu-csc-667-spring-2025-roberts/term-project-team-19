@@ -1,0 +1,27 @@
+<header class="app-header">
+            <div class="header-content">
+                <h1>UNO Game Lobby</h1>
+                <div class="header-actions">
+                    <span class="welcome-text" id="welcome-text"></span> 
+                    <!-- TODO: Fix username display -->
+                    <button class="icon-button" id="refresh-button">↻</button>
+                    <button class="icon-button" id="logout-button">⇥</button>
+                </div>
+            </div>
+        </header>
+        <script src="/js/auth.js"></script>
+        <script>
+            const auth = Auth.getInstance();
+
+            document.addEventListener('DOMContentLoaded', () => {
+            // Add logout handler
+            document.getElementById('logout-button').addEventListener('click', async () => {
+                try {
+                    auth.logout();
+                } catch (error) {
+                    console.error("Error during logout:", error);
+                }
+            });
+        });
+
+        </script>

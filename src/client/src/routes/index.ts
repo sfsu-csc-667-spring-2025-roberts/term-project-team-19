@@ -15,7 +15,7 @@ const auth = Auth.getInstance();
 // Root route - redirects based on auth status
 router.get(
   "/",
-  requestHandler.requireAuth,
+  //requestHandler.requireAuth,
   async (req: Request, res: Response) => {
     await new LandingView(gameManager).render(res);
   },
@@ -24,7 +24,7 @@ router.get(
 // Protected routes
 router.get(
   "/landing",
-  requestHandler.requireAuth,
+  //  requestHandler.requireAuth,
   async (req: Request, res: Response) => {
     await new LandingView(gameManager).render(res);
   },
@@ -32,7 +32,7 @@ router.get(
 
 router.get(
   "/game",
-  requestHandler.requireAuth,
+  //requestHandler.requireAuth,
   (req: Request, res: Response) => {
     new GameView().render(res);
   },
@@ -41,7 +41,7 @@ router.get(
 // Public routes
 router.get(
   "/login",
-  requestHandler.redirectIfAuthenticated,
+  //requestHandler.redirectIfAuthenticated,
   (req: Request, res: Response) => {
     new LoginView().render(res);
   },
@@ -49,7 +49,7 @@ router.get(
 
 router.post(
   "/login",
-  requestHandler.handleLogin,
+  //requestHandler.handleLogin,
   (req: Request, res: Response) => {
     if (res.statusCode === 200) {
       res.redirect("/landing");
@@ -59,13 +59,13 @@ router.post(
 
 router.post(
   "/logout",
-  requestHandler.handleLogout,
+  //requestHandler.handleLogout,
   (req: Request, res: Response) => {},
 );
 
 router.post(
   "/register",
-  requestHandler.handleRegister,
+  //requestHandler.handleRegister,
   (req: Request, res: Response) => {
     if (res.statusCode === 200) {
       res.redirect("/login");
@@ -75,7 +75,7 @@ router.post(
 
 router.get(
   "/register",
-  requestHandler.redirectIfAuthenticated,
+  //requestHandler.redirectIfAuthenticated,
   (req: Request, res: Response) => {
     new RegisterView().render(res);
   },
@@ -83,7 +83,7 @@ router.get(
 
 router.post(
   "/games/:id/join",
-  requestHandler.requireAuth,
+  //requestHandler.requireAuth,
   requestHandler.handleJoinGame,
   (req: Request, res: Response) => {
     console.log("Game route");
@@ -93,13 +93,13 @@ router.post(
 
 router.post(
   "/games/create",
-  requestHandler.requireAuth,
+  //requestHandler.requireAuth,
   requestHandler.handleCreateGame,
 );
 
 router.get(
   "/games/:id/lobby",
-  requestHandler.requireAuth,
+  //requestHandler.requireAuth,
   (req: Request, res: Response) => {
     new LobbyView(gameManager, parseInt(req.params.id)).render(res);
   },

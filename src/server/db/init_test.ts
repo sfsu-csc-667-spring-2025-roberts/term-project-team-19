@@ -95,6 +95,7 @@ export async function initializeDatabase() {
     await sequelize.query('DROP TABLE IF EXISTS "CardDefinitions" CASCADE;');
     await sequelize.query('DROP TABLE IF EXISTS "GameCards" CASCADE;');
     await sequelize.query('DROP TABLE IF EXISTS "GameMoves" CASCADE;');
+    await sequelize.query('DROP TABLE IF EXISTS "session" CASCADE;');
 
     // Sync without force to preserve data
     await sequelize.sync({

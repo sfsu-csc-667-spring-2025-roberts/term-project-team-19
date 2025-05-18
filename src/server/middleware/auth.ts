@@ -12,12 +12,18 @@ export const requireAuth = (
   console.log(req.headers);
   // get authorization header
   const authHeader = req.headers.authorization;
-  if (!authHeader) {
-    res.status(401).json({ error: "Authentication required" });
-    return;
+  let token = null;
+  if (!authHeader || authHeader === "Bearer") {
+    token = req.session.user?.token;
+    if (!token) {
+      res.status(401).json({ error: "Authentication required" });
+      return;
+    }
+    token = token.split(" ")[1];
+  } else {
+    token = authHeader.split(" ")[1];
   }
   // verify token
-  const token = authHeader.split(" ")[1];
   const decoded = jwt.verify(
     token,
     process.env.SESSION_SECRET!,

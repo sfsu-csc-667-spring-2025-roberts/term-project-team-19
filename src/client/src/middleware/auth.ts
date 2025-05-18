@@ -126,7 +126,11 @@ export class Auth {
   }
 
   public async isAuthenticated(): Promise<boolean> {
-    const user = this.getUser();
+    //const user = this.getUser();
+    const userStr = localStorage.getItem("user");
+    const user = userStr ? JSON.parse(userStr) : null;
+    console.log("user", user);
+
     if (!user || !user.token) {
       return false;
     }

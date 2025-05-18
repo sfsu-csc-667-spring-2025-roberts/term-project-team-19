@@ -7,6 +7,7 @@
     <% styles.forEach(function(style) { %>
         <link rel="stylesheet" href="<%= style %>">
     <% }); %>
+    <script src="/js/auth.js"></script>
 </head>
 <body>
     <div class="container">
@@ -19,4 +20,10 @@
         </div>
     </div>
 </body>
+<script>
+    const auth = Auth.getInstance();
+    if (!auth.isAuthenticated()) {
+        window.location.href = '/login';
+    }
+</script>
 </html> 
