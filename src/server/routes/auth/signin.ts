@@ -8,6 +8,7 @@ import {
   RequestHandler,
 } from "../../types";
 import jwt from "jsonwebtoken";
+import { getActiveGameForUser } from "../../db/utils";
 const signinHandler: RequestHandler = async (req, res) => {
   try {
     console.log("=== Signin Handler ===");
@@ -53,12 +54,14 @@ const signinHandler: RequestHandler = async (req, res) => {
       { expiresIn: "24h" },
     );
 
+    const game = await getActiveGameForUser(user.id);
+
     // Set session
     req.session.user = {
       id: user.id,
       username: user.username,
       email: user.email,
-      game_id: 0,
+      game_id: game?.id || 0,
       token: token,
     };
 
