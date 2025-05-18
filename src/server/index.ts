@@ -2,6 +2,7 @@ import * as path from "path";
 import * as http from "http";
 import { Server as SocketIOServer } from "socket.io";
 import express from "express";
+import type { RequestHandler } from "express-serve-static-core";
 import httpErrors from "http-errors";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
@@ -56,7 +57,7 @@ app.use(
       sameSite: "lax",
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
     },
-  }),
+  }) as unknown as RequestHandler,
 );
 
 app.use(express.static(path.join(process.cwd(), "src", "client", "public")));
