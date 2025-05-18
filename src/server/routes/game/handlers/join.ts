@@ -13,6 +13,7 @@ export const joinGameHandler: AuthenticatedRequestHandler = async (
   req: AuthenticatedRequest,
   res: Response,
 ) => {
+  console.log("joinGameHandler");
   if (!req.params.game_id) {
     res.status(400).json({ error: "Game ID is required" });
     return;
@@ -23,11 +24,11 @@ export const joinGameHandler: AuthenticatedRequestHandler = async (
   let db_user = await User.findByPk(user.id);
 
   if (!user) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Unauthorized No user provided" });
     return;
   }
   if (!db_user) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Unauthorized No user provided" });
     return;
   }
 

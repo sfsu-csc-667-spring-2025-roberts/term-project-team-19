@@ -26,6 +26,10 @@ export class GameManager {
     return GameManager.instance;
   }
 
+  public getUser() {
+    return this.auth.getUser();
+  }
+
   public addGameListener(listener: (games: GameLobbyItem[]) => void): void {
     this.gameListeners.push(listener);
   }
@@ -88,19 +92,26 @@ export class GameManager {
     }
   }
 
-  public async joinGame(gameId: number): Promise<boolean> {
+  public async joinGame(
+    gameId: number,
+    userId: number | null,
+  ): Promise<boolean> {
+    if (!userId) {
+      console.error("No user ID provided");
+      return false;
+    }
+    const request = new Request(`http://localhost:3000/games/${gameId}/join`, {
+      method: "POST",
+      credentials: "include",
+      headers: this.getAuthHeaders(),
+    });
+    console.log("request", request);
     try {
-      const response = await fetch(
-        `http://localhost:3000/games/${gameId}/join`,
-        {
-          method: "POST",
-          credentials: "include",
-          headers: this.getAuthHeaders(),
-        },
-      );
+      const response = await fetch(request);
+      console.log("response", response);
 
       if (response.ok) {
-        await this.fetchGames();
+        console.log("joined game");
         return true;
       }
       return false;

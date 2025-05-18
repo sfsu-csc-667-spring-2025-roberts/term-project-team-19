@@ -1,7 +1,11 @@
 import { Router, Response } from "express";
 import { Game, GamePlayer, User } from "../../db/schema";
 import { requireAuth } from "../../middleware/auth";
-import { AuthenticatedRequest, AuthenticatedRequestHandler } from "../../types";
+import {
+  AuthenticatedRequest,
+  AuthenticatedRequestHandler,
+  SessionUser,
+} from "../../types";
 import { Model, InferAttributes, InferCreationAttributes } from "sequelize";
 import { GameStatus } from "../../enum/enums";
 
@@ -43,7 +47,10 @@ const router = Router();
 
 // Get all games
 router.get("/", requireAuth, (async (req, res: Response) => {
+  console.log("=== Get Games Route ===");
+  console.log("Headers:", JSON.stringify(req.headers, null, 2));
   console.log("Session:", JSON.stringify(req.session.user, null, 2));
+  console.log("================================================\n\n");
   try {
     const games = (await Game.findAll({
       include: [
@@ -67,7 +74,6 @@ router.get("/", requireAuth, (async (req, res: Response) => {
       ],
     })) as GameInstance[];
 
-    console.log(games);
     const formattedGames = games.map((game) => ({
       id: game.id,
       hostUsername: game.host?.get("username"),
@@ -79,6 +85,9 @@ router.get("/", requireAuth, (async (req, res: Response) => {
         username: (player as any).User?.get("username"),
       })),
     }));
+    req.session.user = {
+      ...req.session.user,
+    } as SessionUser;
 
     res.json(formattedGames);
   } catch (error) {
