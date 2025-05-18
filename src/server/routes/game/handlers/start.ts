@@ -9,7 +9,6 @@ import {
   CardDefinitionInstance,
 } from "../../../types";
 import { initializeCards } from "../../../db/init_cards";
-import { initializeGameCardsHandler } from "./initialize_cards";
 
 // Helper function to shuffle array
 const shuffleArray = <T>(array: T[]): T[] => {
@@ -102,9 +101,13 @@ export const startGameHandler: AuthenticatedRequestHandler = async (
   req: AuthenticatedRequest,
   res: Response,
 ) => {
-  const { game_id } = req.body;
-  const user = req.session.user as SessionUser;
+  if (!req.params.game_id) {
+    res.status(400).json({ error: "Game ID is required" });
+    return;
+  }
+  const game_id = parseInt(req.params.game_id);
 
+  const user = req.session.user as SessionUser;
   if (!user) {
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -140,9 +143,13 @@ export const startGameHandler: AuthenticatedRequestHandler = async (
 
   await game.update({
     status: GameStatus.PLAYING,
-    current_turn: game.host_id,
+    current_turn: user.id,
     turn_direction: 1,
   });
+
+  user.game_id = game_id;
+  req.session.user = user;
+  req.session.save();
 
   res.status(200).json({ game });
 };
