@@ -233,5 +233,14 @@
       window.location.href = '/'; // Redirect to home page
     });
   </script>
+
+  <script>
+  window.API_BASE = 'http://localhost:3000';
+  window.GAME_ID  = <%= game.id %>; 
+  </script>
+  
+  <script src="/socket.io/socket.io.js"></script>
+  <script type="module" src="/js/socket/index.js"></script>
+  <script type="module" src="/js/chat/index.js"></script>
 </body>
 </html>

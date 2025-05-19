@@ -16,7 +16,9 @@ dotenv.config();
 
 import authRoutes from "./routes/auth";
 import gamesRoutes from "./routes/game";
-import chatRouter from "./routes/chat";
+import chatRouter from "./routes/chat/chat";
+import { requireChatUser } from "./middleware/chatAuth";
+
 import { timeMiddleware } from "./middleware/time";
 import friendRoutes from "./routes/friends/index";
 
@@ -25,7 +27,14 @@ import { sessionMiddleware } from "./config/session";
 
 const app = express();
 const server = http.createServer(app);
-export const io = new SocketIOServer(server, { cors: { origin: "*" } });
+export const io = new SocketIOServer(server, {
+  cors: {
+    origin: ["http://localhost:3001"],
+    credentials: true
+  }
+});
+app.set("io", io);
+
 
 const PORT = process.env.PORT || 3000;
 
@@ -53,7 +62,7 @@ app.set("view engine", "ejs");
 // redirect to auth
 app.use("/auth", authRoutes);
 app.use("/games", gamesRoutes);
-app.use("/chat", chatRouter);
+app.use("/chat", requireChatUser, chatRouter);
 app.use("/friendship", friendRoutes);
 
 app.use((_, __, next) => {
