@@ -1,13 +1,10 @@
 // Socket manager implementation
 window.SocketManager = {
   instance: null,
-  socket: null,
-  gameId: null,
 
   getInstance: function () {
     if (!this.instance) {
       this.instance = {
-        socket: null,
         init: function () {
           // Initialize socket connection
           this.socket = io("http://localhost:3000", {
@@ -37,7 +34,7 @@ window.SocketManager = {
             console.log(`Player ${data.username} joined the game`);
             // You can emit a custom event to notify your UI
             window.dispatchEvent(
-              new CustomEvent("game:playerJoined", { detail: data }),
+              new CustomEvent(`game_${gameId}:playerJoined`, { detail: data }),
             );
           });
         },

@@ -29,6 +29,7 @@ window.Game = {
                 credentials: "include",
               },
             );
+            console.log("response: ", response);
 
             if (response.ok) {
               const res = await response.json();

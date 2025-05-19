@@ -205,42 +205,36 @@
     
     // const SocketManager = SocketManager.getInstance();
     console.log("user: ", user);
-    const gameId = user.game_id;
+    const gameId = parseInt(window.location.pathname.split('/')[2]);
+
     const userId = user.id;
-    const gameData = game.fetchGame(gameId);
-    console.log("gameData: ", gameData);
 
     // Check if user is already authenticated
     auth.isAuthenticated().then(isAuth => {
       if (!isAuth) {
         window.location.href = "/login";
-      } else {
-        loadGameData();
       }
     });
 
-    socketManager.joinGame(gameId, user.username);
-    socketManager.getSocket()?.on("playerJoined", async (data) => {
-      console.log("Player joined: ", user.username);
-      const playerJoined = document.getElementById('player-joined');
-      if (playerJoined) {
-        console.log("Player joined: ", data);
-        playerJoined.textContent = `Player ${data} joined the game`;
-      }
-    });
-
-    async function loadGameData() {
-      try {
-        const gameData = await game.fetchGame(gameId);
-        if (gameData) {
-          updateGameUI(gameData);
+    auth.userInGame(gameId).then(inGame => {
+      if (!inGame) {
+        socketManager.joinGame(gameId, user.username);
+        socketManager.getSocket()?.on("playerJoined", async (data) => {
+        console.log("Player joined: ", user.username);
+        const playerJoined = document.getElementById('player-joined');
+        if (playerJoined) {
+            console.log("Player joined: ", data);
+            playerJoined.textContent = `Player ${data} joined the game`;
         }
-      } catch (error) {
-        console.error('Error loading game data:', error);
+        });
       }
-    }
+    });
+    updateGameUI();
 
-    function updateGameUI(gameData) {
+    
+
+    async function updateGameUI() {
+        const gameData = await game.fetchGame(gameId);
       // Update game name
       document.getElementById('game-name').textContent = gameData.name;
 
@@ -258,13 +252,21 @@
       // Update start game button
       const startGameBtn = document.getElementById('start-game');
       const waitingMessage = document.getElementById('waiting-message');
+      console.log("gameData: ", gameData);
       
       if (userId === gameData.hostId) {
-        startGameBtn.style.display = gameData.playerCount < 2 ? 'none' : 'block';
-        waitingMessage.style.display = 'none';
+        if (gameData.playerCount < 2) {
+          waitingMessage.style.display = 'none';
+          startGameBtn.style.display = 'block';
+        } else {
+          waitingMessage.textContent = 'Must have at least 2 players to start game';
+          waitingMessage.style.display = 'block';
+          startGameBtn.style.display = 'none';
+        }
       } else {
-        startGameBtn.style.display = 'none';
+        waitingMessage.textContent = 'Waiting for host to start game...';
         waitingMessage.style.display = 'block';
+        startGameBtn.style.display = 'none';
       }
     }
 

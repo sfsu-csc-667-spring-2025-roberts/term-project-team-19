@@ -99,6 +99,27 @@ window.Auth = {
           }
         },
 
+        userInGame: async (gameId) => {
+          const response = await fetch(
+            `http://localhost:3000/games/${gameId}`,
+            {
+              method: "GET",
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+              },
+              credentials: "include",
+            },
+          );
+          if (!response.ok) {
+            return false;
+          }
+          const data = await response.json();
+          const user = window.Auth.getInstance().getUser();
+          console.log("data: ", data);
+          console.log("user: ", user);
+          return data.players.some((player) => player.id === user.id);
+        },
+
         logout: async () => {
           const response = await fetch("http://localhost:3000/auth/signout", {
             method: "POST",
