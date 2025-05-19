@@ -17,6 +17,8 @@ dotenv.config();
 import authRoutes from "./routes/auth";
 import gamesRoutes from "./routes/game";
 import chatRouter from "./routes/chat";
+import { requireChatUser } from "./middleware/chatAuth";
+
 import { timeMiddleware } from "./middleware/time";
 import friendRoutes from "./routes/friends/index";
 
@@ -53,7 +55,7 @@ app.set("view engine", "ejs");
 // redirect to auth
 app.use("/auth", authRoutes);
 app.use("/games", gamesRoutes);
-app.use("/chat", chatRouter);
+app.use("/chat", requireChatUser, chatRouter);
 app.use("/friendship", friendRoutes);
 
 app.use((_, __, next) => {
