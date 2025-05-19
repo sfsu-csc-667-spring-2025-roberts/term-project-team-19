@@ -32,12 +32,7 @@ export const createGameHandler: AuthenticatedRequestHandler = async (
   // check if game exists where user is either host or member
   const game = await Game.findOne({
     where: {
-      [Op.or]: [
-        { host_id },
-        { member_2_id: host_id },
-        { member_3_id: host_id },
-        { member_4_id: host_id },
-      ],
+      host_id: host_id,
       status: {
         [Op.or]: [GameStatus.WAITING, GameStatus.PLAYING],
       },
@@ -45,23 +40,20 @@ export const createGameHandler: AuthenticatedRequestHandler = async (
   });
 
   if (game) {
-    res.status(400).json({ error: "User is already in an active game" });
+    console.log("user cannot host multiple games");
+    res.status(400).json({ error: "User cannot host multiple games" });
     return;
   }
 
   const newGame = (await Game.create({
     host_id: host_id,
+    status: GameStatus.WAITING,
+    max_players: 4,
+    player_count: 1,
   })) as GameInstance;
 
-  const io = req.app.get("io");
-  io.to(`game_${newGame.id}`).emit("playerJoined", {
-    userId: user.id,
-    username: user.username,
-    seatNumber: 1,
-  });
-
-  await db_user.update({ game_id: newGame.id });
-  user.game_id = newGame.id;
+  // await db_user.update({ game_id: newGame.id });
+  //user.game_id = newGame.id;
   req.session.user = user;
   req.session.save();
 

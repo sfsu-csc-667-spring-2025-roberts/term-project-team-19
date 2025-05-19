@@ -86,7 +86,8 @@
         if (welcomeSpan && user) {
             welcomeSpan.textContent = `Welcome, ${user.username}!`;
         }
-
+        
+        // join game button click handler
         document.addEventListener('DOMContentLoaded', () => {
             // Add click handlers for join game buttons
             document.querySelectorAll('.join-game-button').forEach(button => {
@@ -106,6 +107,24 @@
                     };
                 }
             });
+        });
+
+        // create game button click handler
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('create-game-button').onclick = async () => {
+                const response = await game.createGame();
+                if (!response.ok) 
+                {
+                    console.log("response: ", response);
+                    alert(response.error);
+                }
+                else
+                {
+                    const game = await response.json();
+                    console.log("game: ", game.game.id);
+                    window.location.href = `/games/${game.game.id}/lobby`;
+                }
+            }
         });
     </script>
 </body>

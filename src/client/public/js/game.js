@@ -6,21 +6,14 @@ window.Game = {
         auth: Auth.getInstance(),
         gameId: null,
         //socketManager: SocketManager.getInstance(),
-        createGame: async (maxPlayers) => {
+        createGame: async () => {
           try {
-            const response = await fetch(`http://localhost:3000/games`, {
+            const response = await fetch(`http://localhost:3000/games/create`, {
               method: "POST",
               headers: auth.getAuthHeaders(),
               credentials: "include",
-              body: JSON.stringify({ maxPlayers }),
             });
-
-            if (response.ok) {
-              const game = await response.json();
-              window.location.href = `/game/${game.id}`;
-            } else {
-              return await response.json();
-            }
+            return response;
           } catch (error) {
             console.error("Failed to create game:", error);
             return null;

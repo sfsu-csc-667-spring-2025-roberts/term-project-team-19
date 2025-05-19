@@ -62,18 +62,6 @@ export const joinGameHandler: AuthenticatedRequestHandler = async (
     },
   })) as GameInstance;
 
-  if (existingGame) {
-    if (req.session.user) {
-      req.session.user.game_id = existingGame.id;
-    }
-    req.session.save();
-    res.status(400).json({
-      error: "User is already in an active game",
-      game_id: existingGame.id,
-    });
-    return;
-  }
-
   // Find first available member slot
   if (!game.member_2_id) {
     await game.update({ member_2_id: user.id });
