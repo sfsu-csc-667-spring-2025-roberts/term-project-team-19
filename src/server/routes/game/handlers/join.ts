@@ -47,9 +47,10 @@ export const joinGameHandler: AuthenticatedRequestHandler = async (
     return;
   }
 
-  // Check if user is already in a game
+  // Check if user is already in this game
   const existingGame = (await Game.findOne({
     where: {
+      id: game_id,
       [Op.or]: [
         { host_id: user.id },
         { member_2_id: user.id },
@@ -61,6 +62,11 @@ export const joinGameHandler: AuthenticatedRequestHandler = async (
       },
     },
   })) as GameInstance;
+
+  if (existingGame) {
+    res.status(400).json({ error: "You are already in this game" });
+    return;
+  }
 
   // Find first available member slot
   if (!game.member_2_id) {

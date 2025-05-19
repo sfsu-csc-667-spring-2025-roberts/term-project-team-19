@@ -5,6 +5,7 @@ window.SocketManager = {
   getInstance: function () {
     if (!this.instance) {
       this.instance = {
+        gameId: null,
         init: function () {
           // Initialize socket connection
           this.socket = io("http://localhost:3000", {

@@ -218,23 +218,26 @@
 
     auth.userInGame(gameId).then(inGame => {
       if (!inGame) {
-        socketManager.joinGame(gameId, user.username);
-        socketManager.getSocket()?.on("playerJoined", async (data) => {
+        alert("You are not in this game");
+        window.location.href = "/";
+      }
+    });
+
+    socketManager.joinGame(gameId, user.username);
+    socketManager.getSocket()?.on("playerJoined", async (data) => {
         console.log("Player joined: ", user.username);
         const playerJoined = document.getElementById('player-joined');
         if (playerJoined) {
             console.log("Player joined: ", data);
             playerJoined.textContent = `Player ${data} joined the game`;
         }
-        });
-      }
     });
     updateGameUI();
 
     
 
     async function updateGameUI() {
-        const gameData = await game.fetchGame(gameId);
+      let gameData = await game.fetchGame(gameId);
       // Update game name
       document.getElementById('game-name').textContent = gameData.name;
 

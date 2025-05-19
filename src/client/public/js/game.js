@@ -8,7 +8,7 @@ window.Game = {
         //socketManager: SocketManager.getInstance(),
         createGame: async () => {
           try {
-            const response = await fetch(`http://localhost:3000/games/create`, {
+            const response = await fetch(`http://localhost:3000/games`, {
               method: "POST",
               headers: auth.getAuthHeaders(),
               credentials: "include",
@@ -29,7 +29,6 @@ window.Game = {
                 credentials: "include",
               },
             );
-            console.log("response: ", response);
 
             if (response.ok) {
               const res = await response.json();
@@ -39,6 +38,11 @@ window.Game = {
               window.location.href = `/games/${gameId}/lobby`;
             } else if (response.status === 400) {
               const res = await response.json();
+              if (res.error === "You are already in this game") {
+                alert("You are already in this game");
+                window.location.href = `/games/${gameId}/lobby`;
+              }
+              console.log("res: ", res);
               auth.setAuthData(res);
               alert(res.error);
               this.gameId = res.game_id;
