@@ -68,6 +68,8 @@ export async function getGamesHandler(req: Request, res: Response) {
       })),
     }));
 
+    console.log("formattedGames: ", formattedGames);
+
     res.json(formattedGames);
   } catch (error) {
     console.error("Error fetching games:", error);
@@ -79,8 +81,6 @@ export async function getGameHandler(req: Request, res: Response) {
   try {
     console.log("GET GAME HANDLER");
     console.log("ID", req.params.game_id);
-    console.log("SESSION", req.session);
-    console.log("USER", req.session?.user);
     console.log("--------------------------------");
     const gameId = parseInt(req.params.game_id);
 
@@ -118,11 +118,6 @@ export async function getGameHandler(req: Request, res: Response) {
       res.status(404).json({ error: "Game not found" });
       return;
     }
-
-    // Add debug logging
-    console.log("Game query result:", JSON.stringify(game, null, 2));
-    console.log("GamePlayers:", game.gamePlayers);
-    console.log("First player user:", game.gamePlayers[0]?.user);
 
     // Transform the data to match the client's expected format
     const formattedGame = {

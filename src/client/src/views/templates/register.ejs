@@ -7,6 +7,7 @@
     <% styles.forEach(function(style) { %>
         <link rel="stylesheet" href="<%= style %>">
     <% }); %>
+    <script src="/js/auth.js"></script>
 </head>
 <body>
     <div class="auth-container">
@@ -24,6 +25,13 @@
         </div>
     </div>
     <script>
+        const auth = Auth.getInstance();
+        // Check if user is already authenticated
+        auth.isAuthenticated().then(isAuth => {
+            if (isAuth) {
+                window.location.href = "/landing";
+            }
+        });
         document.addEventListener('DOMContentLoaded', () => {
             const form = document.getElementById('registerForm');
             const emailInput = document.getElementById('email');
@@ -47,14 +55,9 @@
                 }
           
                 try {
-                    const res = await fetch('http://localhost:3001/register', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ username, email, password }),
-                    });
+                    const res = await auth.register(username, email, password);
           
                     if (!res.ok) {
-                        const errorData = await res.json();
                         errorMessage.textContent = errorData.error;
                     } else {
                         window.location.href = "/login";

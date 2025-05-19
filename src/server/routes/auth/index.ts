@@ -22,8 +22,15 @@ authRouter.post("/check", (req, res) => {
       res.status(401).json({ error: "Authentication required" });
       return;
     }
+
     // verify token
     const token = authHeader.split(" ")[1];
+
+    if (token == "undefined" || token == "null") {
+      res.status(401).json({ error: "Authentication required" });
+      return;
+    }
+
     const decoded = jwt.verify(
       token,
       process.env.SESSION_SECRET!,
@@ -34,6 +41,7 @@ authRouter.post("/check", (req, res) => {
       return;
     } else {
       if (decoded.iat && decoded.exp && decoded.iat < decoded.exp) {
+        console.log("Authenticated", decoded);
         res.status(200).json({
           message: "Authenticated",
           user: req.session.user,

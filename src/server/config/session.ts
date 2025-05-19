@@ -14,7 +14,7 @@ const store = new PgStore({
 const sessionMiddleware = session({
   store,
   secret: process.env.SESSION_SECRET || "your-secret-key",
-  resave: false,
+  resave: true,
   saveUninitialized: false,
   cookie: {
     secure: false,

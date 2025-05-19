@@ -1,5 +1,5 @@
 import { Response } from "express";
-import { Game, User } from "../../../db/schema";
+import { Game, User, GamePlayer } from "../../../db/schema";
 import { GameStatus } from "../../../enum/enums";
 import { Op } from "sequelize";
 import { io } from "../../../index";
@@ -14,6 +14,12 @@ export const leaveGameHandler: AuthenticatedRequestHandler = async (
   req: AuthenticatedRequest,
   res: Response,
 ) => {
+  console.log("leaveGameHandler");
+  console.log("req.params.game_id", req.params.game_id);
+  console.log("req.session.user", req.session.user);
+  console.log("req.session.user.id", req.session.user?.id);
+  console.log("req.session.user.username", req.session.user?.username);
+  console.log("================================================");
   if (!req.params.game_id) {
     res.status(400).json({ error: "Game ID is required" });
     return;
@@ -24,21 +30,21 @@ export const leaveGameHandler: AuthenticatedRequestHandler = async (
   let db_user = await User.findByPk(user.id);
 
   if (!user) {
+    console.log("user not found");
     res.status(401).json({ error: "Unauthorized" });
     return;
   }
   if (!db_user) {
-    res.status(401).json({ error: "Unauthorized" });
-    return;
-  }
-
-  if (user.game_id !== game_id) {
+    console.log("db_user not found");
     res.status(401).json({ error: "Unauthorized" });
     return;
   }
 
   const game = (await Game.findOne({
     where: {
+      status: {
+        [Op.or]: [GameStatus.WAITING, GameStatus.PLAYING],
+      },
       id: game_id,
       [Op.or]: [
         { host_id: user.id },
@@ -54,6 +60,14 @@ export const leaveGameHandler: AuthenticatedRequestHandler = async (
     return;
   }
 
+  // Remove the GamePlayer record
+  await GamePlayer.destroy({
+    where: {
+      game_id: game_id,
+      user_id: user.id,
+    },
+  });
+
   switch (user.id) {
     case game.host_id:
       await game.destroy();
@@ -67,6 +81,9 @@ export const leaveGameHandler: AuthenticatedRequestHandler = async (
     case game.member_4_id:
       await game.update({ member_4_id: null });
       break;
+    default:
+      res.status(401).json({ error: "Unauthorized" });
+      return;
   }
 
   io.to(`game_${game.id}`).emit("playerLeft", {

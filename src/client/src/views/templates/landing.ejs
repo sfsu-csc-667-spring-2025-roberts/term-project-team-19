@@ -9,20 +9,12 @@
             <link rel="stylesheet" href="<%= style %>">
         <% }); %>
     <% } %>
+    <script src="/js/auth.js"></script>
+    <script src="/js/game.js"></script>
 </head>
 <body>
     <div id="lobby-container">
-        <header class="app-header">
-            <div class="header-content">
-                <h1>UNO Game Lobby</h1>
-                <div class="header-actions">
-                    <span class="welcome-text" id="welcome-text">Welcome, <%= user?.username || 'Guest' %>!</span> 
-                    <!-- TODO: Fix username display -->
-                    <button class="icon-button" id="refresh-button">↻</button>
-                    <button class="icon-button" id="logout-button">⇥</button>
-                </div>
-            </div>
-        </header>
+        <%- include('shared/head') %>
 
         <main class="main-content">
             <div class="lobby-container">
@@ -79,40 +71,34 @@
     
     <!-- Main lobby script -->
     <script type="module">
+        const auth = Auth.getInstance();
+        auth.isAuthenticated().then(isAuth => {
+            if (!isAuth) {
+                console.log("Not authenticated");
+                window.location.href = '/login';
+            }
+        });
+        const user = auth.getUser();
+        const game = Game.getInstance();
+
+        // Update welcome text with user's username
+        const welcomeSpan = document.getElementById('welcome-text');
+        if (welcomeSpan && user) {
+            welcomeSpan.textContent = `Welcome, ${user.username}!`;
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
-            // Add logout handler
-            document.getElementById('logout-button').addEventListener('click', async () => {
-                try {
-                    const response = await fetch('http://localhost:3001/logout', {
-                        method: 'POST',
-                        credentials: 'include'
-                    });
-                    
-                    if (response.ok) {
-                        window.location.href = '/login';
-                    } else {
-                        console.error("Failed to logout");
-                    }
-                } catch (error) {
-                    console.error("Error during logout:", error);
-                }
-            });
-            
             // Add click handlers for join game buttons
             document.querySelectorAll('.join-game-button').forEach(button => {
                 const gameId = button.dataset.gameId;
                 if (gameId) {
                     button.onclick = async () => {
                         try {
-                            const response = await fetch(`http://localhost:3001/games/${gameId}/join`, {
-                                method: 'POST',
-                                credentials: 'include'
-                            });
-                            
-                            if (response.ok) {
-                                window.location.href = `/games/${gameId}/lobby`;
-                            } else {
-                                console.error("Failed to join game");
+                            const response = await game.joinGame(gameId);
+                            if (!response.ok) 
+                            {
+                                console.log("response: ", response);
+                                alert(response.error);
                             }
                         } catch (error) {
                             console.error("Error joining game:", error);

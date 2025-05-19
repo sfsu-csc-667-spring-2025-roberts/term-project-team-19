@@ -6,6 +6,10 @@
   <% styles.forEach(function(style) { %>
     <link rel="stylesheet" href="<%= style %>">
   <% }); %>
+  <script src="/js/socket.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/game.js"></script>
+  
   <style>
     .popup-overlay {
       position: fixed;
@@ -76,18 +80,27 @@
     }
 
     .players-section {
-      flex: 1;
+      width: 400px;
       display: flex;
       flex-direction: column;
       gap: 10px;
       overflow-y: auto;
     }
 
+    .right-section {
+      width: 300px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
     .list-item {
-      min-height: 120px;
+      min-height: 100px;
       display: flex;
       align-items: center;
       padding: 20px;
+      width: 100%;
+      height: 100px;
     }
 
     .game-info {
@@ -135,7 +148,6 @@
     }
 
     .start-game-container {
-      margin-top: 20px;
       text-align: center;
     }
 
@@ -148,15 +160,9 @@
   </style>
 </head>
 <body>
-  <header class="app-header">
-    <div class="header-content">
-      <h1>Lobby</h1>
-      <div class="header-actions">
-        <span class="welcome-text"><%= user.username %></span>
-        <button class="icon-button" id="logout-button">⇥</button>
-      </div>
-    </div>
-  </header>
+
+    <%- include('shared/head') %>
+
 
   <div class="popup-overlay">
     <div class="popup-window">
@@ -164,45 +170,27 @@
       
       <div class="lobby-container">
         <div class="game-header">
-          <h1><%= game.name %></h1>
+          <h1 id="game-name">Loading...</h1>
         </div>
 
         <div class="lobby-content">
-          <div class="players-section">
-            <% game.players.forEach(player => { %>
-              <div class="list-item <%= player.id === game.hostId ? 'host' : '' %>">
-                <div class="game-info">
-                  <h3><%= player.username %></h3>
-                  <% if (player.id === game.hostId) { %>
-                    <p>Host</p>
-                  <% } %>
-                </div>
-              </div>
-            <% }); %>
+          <div class="players-section" id="players-section">
+            <!-- Players will be populated here -->
           </div>
 
-          <div class="chat-section">
-            <div class="chat-window">
-              <h3>Chat</h3>
-              <div class="chat-messages" id="chat-messages"></div>
-              <div class="chat-input">
-                <input type="text" placeholder="Type a message...">
-                <button class="join-button">Send</button>
-              </div>
-            </div>
-
+          <div class="right-section">
+            <%- include('shared/chat') %>
             <div class="start-game-container">
-              <% if (user.id === game.hostId) { %>
-                <button 
-                  class="create-game-button" 
-                  id="start-game"
-                  <%= game.playerCount < 2 ? 'disabled' : '' %>
-                >
-                  Start Game
-                </button>
-              <% } else { %>
-                <p class="waiting-message">Waiting for host to start the game...</p>
-              <% } %>
+              <button 
+                class="create-game-button" 
+                id="start-game"
+                style="display: none;"
+              >
+                Start Game
+              </button>
+              <p class="waiting-message" id="waiting-message" style="display: none;">
+                Waiting for host to start the game...
+              </p>
             </div>
           </div>
         </div>
@@ -211,9 +199,78 @@
   </div>
 
   <script>
+    const game = Game.getInstance();
+    const user = auth.getUser();
+    const socketManager = SocketManager.getInstance();
+    
+    // const SocketManager = SocketManager.getInstance();
+    console.log("user: ", user);
+    const gameId = user.game_id;
+    const userId = user.id;
+    const gameData = game.fetchGame(gameId);
+    console.log("gameData: ", gameData);
+
+    // Check if user is already authenticated
+    auth.isAuthenticated().then(isAuth => {
+      if (!isAuth) {
+        window.location.href = "/login";
+      } else {
+        loadGameData();
+      }
+    });
+
+    socketManager.joinGame(gameId, user.username);
+    socketManager.getSocket()?.on("playerJoined", async (data) => {
+      console.log("Player joined: ", user.username);
+      const playerJoined = document.getElementById('player-joined');
+      if (playerJoined) {
+        console.log("Player joined: ", data);
+        playerJoined.textContent = `Player ${data} joined the game`;
+      }
+    });
+
+    async function loadGameData() {
+      try {
+        const gameData = await game.fetchGame(gameId);
+        if (gameData) {
+          updateGameUI(gameData);
+        }
+      } catch (error) {
+        console.error('Error loading game data:', error);
+      }
+    }
+
+    function updateGameUI(gameData) {
+      // Update game name
+      document.getElementById('game-name').textContent = gameData.name;
+
+      // Update players list
+      const playersSection = document.getElementById('players-section');
+      playersSection.innerHTML = gameData.players.map(player => `
+        <div class="list-item ${player.id === gameData.hostId ? 'host' : ''}">
+          <div class="game-info">
+            <h3>${player.username}</h3>
+            ${player.id === gameData.hostId ? '<p>Host</p>' : ''}
+          </div>
+        </div>
+      `).join('');
+
+      // Update start game button
+      const startGameBtn = document.getElementById('start-game');
+      const waitingMessage = document.getElementById('waiting-message');
+      
+      if (userId === gameData.hostId) {
+        startGameBtn.style.display = gameData.playerCount < 2 ? 'none' : 'block';
+        waitingMessage.style.display = 'none';
+      } else {
+        startGameBtn.style.display = 'none';
+        waitingMessage.style.display = 'block';
+      }
+    }
+
     // Start game button handler
     document.getElementById('start-game')?.addEventListener('click', function() {
-      fetch(`/games/<%= game.id %>/start`, {
+      fetch(`/games/${gameId}/start`, {
         method: 'POST',
         credentials: 'include'
       })
@@ -221,7 +278,7 @@
         if (!response.ok) {
           throw new Error('Failed to start game');
         }
-        window.location.href = `/game/<%= game.id %>`;
+        window.location.href = `/game/${gameId}`;
       })
       .catch(error => {
         console.error('Error starting game:', error);
@@ -229,9 +286,20 @@
     });
 
     // Close popup handler
-    document.getElementById('close-popup').addEventListener('click', function() {
-      window.location.href = '/'; // Redirect to home page
+    document.getElementById('close-popup').addEventListener('click', async function() {
+      console.log("close-popup");
+      try {
+        const response = await game.leaveGame(gameId);
+        if (response && response.user) {
+          auth.setAuthData(response); // Update local storage with new session data
+        }
+        await socketManager.leaveGame(gameId);
+        window.location.href = '/';
+      } catch (error) {
+        console.error('Error leaving game:', error);
+      }
     });
+
   </script>
 </body>
 </html>

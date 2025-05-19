@@ -63,7 +63,14 @@ export const joinGameHandler: AuthenticatedRequestHandler = async (
   })) as GameInstance;
 
   if (existingGame) {
-    res.status(400).json({ error: "User is already in an active game" });
+    if (req.session.user) {
+      req.session.user.game_id = existingGame.id;
+    }
+    req.session.save();
+    res.status(400).json({
+      error: "User is already in an active game",
+      game_id: existingGame.id,
+    });
     return;
   }
 
@@ -104,7 +111,7 @@ export const joinGameHandler: AuthenticatedRequestHandler = async (
   req.session.user = user;
   req.session.save();
 
-  res.status(200).json({ game });
+  res.status(200).json({ game, user });
 };
 
 export default joinGameHandler;

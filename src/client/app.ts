@@ -2,7 +2,7 @@ import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
 import morgan from "morgan";
 import path from "path";
-import apiRouter from "./src/routes";
+import apiRouter from "./src/routes/index";
 import session from "express-session";
 
 const app = express();
