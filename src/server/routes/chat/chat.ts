@@ -4,9 +4,9 @@ import { ChatMessage } from "../../../../types/global";
 
 const router = express.Router();
 
-router.post("/:id", (request, response) => {
+router.post("/1", (request, response) => {
     const { message } = request.body;
-    const id = request.params.id;
+    //const id = request.params.id;
     const io = request.app.get("io");
 
     const broadcastMessage: ChatMessage = {
@@ -19,7 +19,7 @@ router.post("/:id", (request, response) => {
     }
     console.log({ broadcastMessage });
 
-    io.emit(`chat-message:${id}`, broadcastMessage);
+    io.emit(`chat-message:1`, broadcastMessage);
 
     response.status(200).send();
 });

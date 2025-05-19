@@ -2,15 +2,15 @@ import { socket } from '../socket/index.js';
 console.log('✅ chat module loaded');
 
 window.addEventListener('DOMContentLoaded', () => {
-  const parent = document.querySelector('section#chat > div');
-  const form = document.querySelector('section#chat form.chat-form');
-  const messageInput = form.querySelector('input[name="message"]');
+  const parent       = document.getElementById('chat-messages');
+  const messageInput = document.querySelector('.chat-input input');
+  const sendButton   = document.querySelector('.chat-input button');
 
-  form.addEventListener('submit', event => {
+  sendButton.addEventListener('click', event => {
     event.preventDefault();
     const text = messageInput.value;
     messageInput.value = '';              // now safe: messageInput is never null
-    fetch('/chat/0', {
+    fetch('/chat/1', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'same-origin',
@@ -18,7 +18,7 @@ window.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  socket.on('chat-message:0', ({ message, sender, gravatar, timestamp }) => {
+  socket.on("chat-message:1", ({ message, sender, gravatar, timestamp }) => {
     const msgEl = document.createElement('div');
     msgEl.className = 'chat-message';
     msgEl.innerHTML = `
