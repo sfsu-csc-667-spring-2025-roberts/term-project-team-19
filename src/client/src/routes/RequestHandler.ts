@@ -92,22 +92,22 @@ export class RequestHandler {
     next();
   };
 
-  public handleJoinGame = async (req: AuthenticatedRequest, res: Response) => {
-    const user = this.auth.getUser();
-    const game_id = parseInt(req.params.id);
-    if (!user) {
-      res.status(500).json({ error: "User not found" });
-      return;
-    }
-    const game_joined = await this.gameManager.joinGame(game_id, user.id);
+  // public handleJoinGame = async (req: AuthenticatedRequest, res: Response) => {
+  //   const user = this.auth.getUser();
+  //   const game_id = parseInt(req.params.id);
+  //   if (!user) {
+  //     res.status(500).json({ error: "User not found" });
+  //     return;
+  //   }
+  //   const game_joined = await this.gameManager.joinGame(game_id, user.id);
 
-    if (game_joined) {
-      this.socketManager.joinGame(game_id);
-      res.redirect(`/games/${req.params.id}/lobby`);
-    } else {
-      res.status(500).json({ error: "Failed to join game" });
-    }
-  };
+  //   if (game_joined) {
+  //     this.socketManager.joinGame(game_id);
+  //     res.redirect(`/games/${req.params.id}/lobby`);
+  //   } else {
+  //     res.status(500).json({ error: "Failed to join game" });
+  //   }
+  // };
 
   public handleCreateGame = async (
     req: AuthenticatedRequest,

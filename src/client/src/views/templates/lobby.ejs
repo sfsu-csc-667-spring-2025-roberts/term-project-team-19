@@ -6,8 +6,10 @@
   <% styles.forEach(function(style) { %>
     <link rel="stylesheet" href="<%= style %>">
   <% }); %>
+  <script src="/js/socket.js"></script>
   <script src="/js/auth.js"></script>
   <script src="/js/game.js"></script>
+  
   <style>
     .popup-overlay {
       position: fixed;
@@ -78,18 +80,27 @@
     }
 
     .players-section {
-      flex: 1;
+      width: 400px;
       display: flex;
       flex-direction: column;
       gap: 10px;
       overflow-y: auto;
     }
 
+    .right-section {
+      width: 300px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
     .list-item {
-      min-height: 120px;
+      min-height: 100px;
       display: flex;
       align-items: center;
       padding: 20px;
+      width: 100%;
+      height: 100px;
     }
 
     .game-info {
@@ -137,7 +148,6 @@
     }
 
     .start-game-container {
-      margin-top: 20px;
       text-align: center;
     }
 
@@ -168,16 +178,8 @@
             <!-- Players will be populated here -->
           </div>
 
-          <div class="chat-section">
-            <div class="chat-window">
-              <h3>Chat</h3>
-              <div class="chat-messages" id="chat-messages"></div>
-              <div class="chat-input">
-                <input type="text" placeholder="Type a message...">
-                <button class="join-button">Send</button>
-              </div>
-            </div>
-
+          <div class="right-section">
+            <%- include('shared/chat') %>
             <div class="start-game-container">
               <button 
                 class="create-game-button" 
@@ -199,6 +201,9 @@
   <script>
     const game = Game.getInstance();
     const user = auth.getUser();
+    const socketManager = SocketManager.getInstance();
+    
+    // const SocketManager = SocketManager.getInstance();
     console.log("user: ", user);
     const gameId = user.game_id;
     const userId = user.id;
@@ -211,6 +216,16 @@
         window.location.href = "/login";
       } else {
         loadGameData();
+      }
+    });
+
+    socketManager.joinGame(gameId, user.username);
+    socketManager.getSocket()?.on("playerJoined", async (data) => {
+      console.log("Player joined: ", user.username);
+      const playerJoined = document.getElementById('player-joined');
+      if (playerJoined) {
+        console.log("Player joined: ", data);
+        playerJoined.textContent = `Player ${data} joined the game`;
       }
     });
 
@@ -271,12 +286,20 @@
     });
 
     // Close popup handler
-    document.getElementById('close-popup').addEventListener('click', function() {
-      window.location.href = '/';
+    document.getElementById('close-popup').addEventListener('click', async function() {
+      console.log("close-popup");
+      try {
+        const response = await game.leaveGame(gameId);
+        if (response && response.user) {
+          auth.setAuthData(response); // Update local storage with new session data
+        }
+        await socketManager.leaveGame(gameId);
+        window.location.href = '/';
+      } catch (error) {
+        console.error('Error leaving game:', error);
+      }
     });
 
-    // Poll for game updates every 5 seconds
-    setInterval(loadGameData, 5000);
   </script>
 </body>
 </html>

@@ -7,10 +7,12 @@ import { LobbyView } from "../views/LobbyView";
 import { GameView } from "../views/GameView";
 import { GameManager } from "../middleware/game";
 import { Auth } from "../middleware/auth";
+import { SocketManager } from "../middleware/socket";
 
 const router = Router();
 const requestHandler = RequestHandler.getInstance();
 const gameManager = GameManager.getInstance();
+const socketManager = SocketManager.getInstance();
 const auth = Auth.getInstance();
 // Root route - redirects based on auth status
 router.get(
@@ -81,15 +83,15 @@ router.get(
   },
 );
 
-router.post(
-  "/games/:id/join",
-  //requestHandler.requireAuth,
-  requestHandler.handleJoinGame,
-  (req: Request, res: Response) => {
-    console.log("Game route");
-    new GameView().render(res);
-  },
-);
+// router.post(
+//   "/games/:id/join",
+//   //requestHandler.requireAuth,
+//   requestHandler.handleJoinGame,
+//   (req: Request, res: Response) => {
+//     console.log("Game route");
+//     new GameView().render(res);
+//   },
+// );
 
 router.post(
   "/games/create",
@@ -101,6 +103,10 @@ router.get(
   "/games/:id/lobby",
   //requestHandler.requireAuth,
   (req: Request, res: Response) => {
+    // socketManager.joinGame(parseInt(req.params.id));
+    // socketManager.getSocket()?.on("playerJoined", (data) => {
+    //   console.log("Player joined: ", data);
+    // });
     new LobbyView(gameManager, parseInt(req.params.id)).render(res);
   },
 );

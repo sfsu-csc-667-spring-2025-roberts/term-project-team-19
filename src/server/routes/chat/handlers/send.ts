@@ -9,15 +9,17 @@ import { AuthenticatedRequest } from "server/types";
 import { GameStatus } from "../../../enum/enums";
 import { Op } from "sequelize";
 import { Chatlog, Game } from "../../../db/schema";
+import { io } from "server";
 
 export const sendMessageHandler: AuthenticatedRequestHandler = async (
   req: AuthenticatedRequest,
   res: Response,
 ) => {
+  console.log("sendMessageHandler");
+  console.log(req.body);
   const { message } = req.body;
   console.log({ message });
   const id = req.params.id;
-  const io = req.app.get("io");
   const gameId = req.params.game_id;
 
   const user = req.session.user as SessionUser;
@@ -66,8 +68,6 @@ export const sendMessageHandler: AuthenticatedRequestHandler = async (
     timestamp: Date.now(),
   };
   console.log({ broadcastMessage });
-
-  // io.emit(`chat-message:${id}`, broadcastMessage);
 
   res.status(200).send();
 };

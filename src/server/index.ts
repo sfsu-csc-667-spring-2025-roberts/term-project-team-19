@@ -21,10 +21,18 @@ import { timeMiddleware } from "./middleware/time";
 
 import * as config from "./config";
 import { sessionMiddleware } from "./config/session";
+import { User } from "client/src/types";
+import { SessionUser } from "./types";
 
 const app = express();
 const server = http.createServer(app);
-export const io = new SocketIOServer(server, { cors: { origin: "*" } });
+export const io = new SocketIOServer(server, {
+  cors: {
+    origin: ["http://localhost:3001", "http://localhost:5173"],
+    credentials: true,
+    methods: ["GET", "POST"],
+  },
+});
 
 const PORT = process.env.PORT || 3000;
 
@@ -33,8 +41,12 @@ app.use(
   cors({
     origin: ["http://localhost:3001", "http://localhost:5173"],
     credentials: true,
+    methods: ["GET", "POST"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   }),
 );
+
+app.use;
 
 // Body parsing middleware
 app.use(express.json());
@@ -83,19 +95,26 @@ try {
     );
 
     socket.on(
-      "sendChat",
+      "SendMessage",
       ({
-        gameId,
         message,
-        playerId,
+        username,
+        game_id,
       }: {
-        gameId: string;
+        game_id: string;
         message: string;
-        playerId: string;
+        username: string;
       }) => {
-        io.to(`game_${gameId}`).emit("chatMessage", { message, playerId });
+        console.log("SendMessage: ", message, username, game_id);
+        io.to(`game_${game_id}`).emit("chatMessage", { message, username });
       },
     );
+
+    socket.on("joinGame", (game_id: string, username: string) => {
+      console.log("joinGame: ", game_id, username);
+      socket.join(`game_${game_id}`);
+      io.to(`game_${game_id}`).emit("playerJoined", { username: username });
+    });
 
     socket.on("disconnect", () => {
       console.log("User disconnected:", socket.id);

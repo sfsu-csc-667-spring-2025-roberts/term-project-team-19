@@ -8,8 +8,7 @@ export const requireAuth = (
   next: NextFunction,
 ) => {
   console.log("=== Require Auth ===");
-  console.log("Session:", JSON.stringify(req.session, null, 2));
-  console.log(req.headers);
+
   // get authorization header
   const authHeader = req.headers.authorization;
   let token = null;

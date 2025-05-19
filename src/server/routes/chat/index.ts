@@ -5,6 +5,6 @@ import { sendMessageHandler } from "./handlers/send";
 
 const chatRouter = express.Router();
 
-chatRouter.post("/:game_id/send", sendMessageHandler);
+chatRouter.post("/:game_id", sendMessageHandler);
 
 export default chatRouter;

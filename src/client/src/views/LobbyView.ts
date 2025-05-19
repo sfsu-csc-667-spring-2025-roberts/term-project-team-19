@@ -1,5 +1,6 @@
 import { BaseView } from "./BaseView";
 import { GameManager } from "../middleware/game";
+import { SocketManager } from "../middleware/socket";
 
 export class LobbyView extends BaseView {
   private gameManager: GameManager;
