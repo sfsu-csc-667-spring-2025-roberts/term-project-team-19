@@ -25,7 +25,7 @@
                         <% games.forEach(function(game) { %>
                             <div class="game-card" data-game-id="<%= game.id %>">
                                 <div class="game-info">
-                                    <h3>Game #<%= game.id %></h3>
+                                    <h3><%= game.hostUsername %>'s Game</h3>
                                     <p>Players: <%= game.playerCount %>/<%= game.maxPlayers %></p>
                                     <p>Status: <%= game.status %></p>
                                 </div>
