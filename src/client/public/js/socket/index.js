@@ -1,7 +1,9 @@
 //import io from "socket.io-client";
 console.log("✅ socket module loaded");  
 
-const socket = io();
+const socket = io("http://localhost:3000", {
+  withCredentials: true
+});
 export { socket };
 /*
 Documentation:

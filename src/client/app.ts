@@ -17,7 +17,7 @@ app.set("view engine", "ejs");
 // Middleware
 app.use(
   cors({
-    origin: "http://localhost:3000", // Your client URL
+    origin: "http://localhost:3001", // Your client URL
     credentials: true, // Allow credentials (cookies)
   })
 );
