@@ -39,11 +39,14 @@ window.Chat = {
 
         getChats: async function (gameId) {
           try {
-            const response = await fetch(`/chat/${gameId}`, {
-              method: "GET",
-              headers: Auth.getInstance().getAuthHeaders(),
-              credentials: "include",
-            });
+            const response = await fetch(
+              `http://localhost:3000/chat/${gameId}`,
+              {
+                method: "GET",
+                headers: Auth.getInstance().getAuthHeaders(),
+                credentials: "include",
+              },
+            );
             if (response.ok) {
               return await response.json();
             } else {

@@ -50,12 +50,25 @@
 <script src="/js/game.js"></script>
 
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
+  document.addEventListener('DOMContentLoaded', async function() {
     const chatInput = document.querySelector('.chat-input input');
     const sendButton = document.querySelector('.chat-input .join-button');
     const chatMessages = document.getElementById('chat-messages');
     const socketManager = SocketManager.getInstance();
     const chat = Chat.getInstance();
+    const chats = await chat.getChats(user.game_id);
+
+    console.log(chats.messages);
+    if (chats.messages.length > 0) {
+      // populate chat messages
+      chats.messages.forEach(chat => {
+        const messageElement = document.createElement('div');
+        messageElement.textContent = `${chat.User.username}: ${chat.message}`;
+        chatMessages.appendChild(messageElement);
+      });
+    }
+
+
 
     function sendMessage() {
       const message = chatInput.value.trim();

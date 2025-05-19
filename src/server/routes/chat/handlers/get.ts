@@ -8,18 +8,16 @@ import { ChatMessage } from "server/types";
 import { AuthenticatedRequest } from "server/types";
 import { GameStatus } from "../../../enum/enums";
 import { Op } from "sequelize";
-import { Chatlog, Game } from "../../../db/schema";
+import { Chatlog, Game, User } from "../../../db/schema";
 import { io } from "server";
 
-export const sendMessageHandler: AuthenticatedRequestHandler = async (
+export const getMessagesHandler: AuthenticatedRequestHandler = async (
   req: AuthenticatedRequest,
   res: Response,
 ) => {
-  console.log("sendMessageHandler");
+  console.log("getMessagesHandler");
   console.log(req.body);
-  const { message } = req.body;
-  console.log({ message });
-  const id = req.params.id;
+
   const gameId = req.params.game_id;
 
   const user = req.session.user as SessionUser;
@@ -55,19 +53,17 @@ export const sendMessageHandler: AuthenticatedRequestHandler = async (
     return;
   }
 
-  await Chatlog.create({
-    game_id: game.id,
-    user_id: user.id,
-    message: message,
-    timestamp: Date.now(),
+  const messages = await Chatlog.findAll({
+    where: {
+      game_id: gameId,
+    },
+    include: [
+      {
+        model: User,
+        attributes: ["username"],
+      },
+    ],
   });
 
-  const broadcastMessage: ChatMessage = {
-    message,
-    sender: user.username,
-    timestamp: Date.now(),
-  };
-  console.log({ broadcastMessage });
-
-  res.status(200).json({ success: true, message: broadcastMessage });
+  res.status(200).json({ messages });
 };
