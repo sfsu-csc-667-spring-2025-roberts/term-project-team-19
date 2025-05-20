@@ -88,12 +88,7 @@ window.Game = {
                 credentials: "include",
               },
             );
-            if (response.ok) {
-              window.location.href = `/games/${gameId}/play`;
-              return await response.json();
-            } else {
-              return await response.json();
-            }
+            return await response;
           } catch (error) {
             console.error("Failed to start game:", error);
             return null;

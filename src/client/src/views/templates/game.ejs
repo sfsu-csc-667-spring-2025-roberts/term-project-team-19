@@ -7,7 +7,10 @@
     <% styles.forEach(function(style) { %>
         <link rel="stylesheet" href="<%= style %>">
     <% }); %>
+    <script src="https://cdn.socket.io/4.8.1/socket.io.min.js" integrity="sha384-mkQ3/7FUtcGyoppY6bz/PORYoGqOl7/aSUMn2ymDOJcapfS6PHqxhRTMh1RR0Q6+" crossorigin="anonymous"></script>
+    <script src="/js/socket.js"></script>
     <script src="/js/auth.js"></script>
+    <script src="/js/game.js"></script>
 </head>
 <body>
     <div class="container">
@@ -27,79 +30,117 @@
             <button id="leaveGame">Leave Game</button>
         </div>
     </div>
-</body>
-<script src="/js/socket.js"></script>
-<script src="/js/game.js"></script>
-<script>
-    const auth = Auth.getInstance();
-    if (!auth.isAuthenticated()) {
-        window.location.href = '/login';
-    }
-    const game = Game.getInstance();
 
-    const game_id = window.location.pathname.split('/')[2];
-    const user_id = auth.getUser().id;
+    <script>
+        const game = Game.getInstance();
+        const auth = Auth.getInstance();
+        const socketManager = SocketManager.getInstance();
+        
+        const game_id = window.location.pathname.split('/')[2];
+        const user = auth.getUser();
+        const user_id = user.id;
 
-    async function updateUI() {
-        try {
-            console.log("Fetching user cards...");
-            const userCards = await game.fetchUserCards(game_id, user_id);
-            const res = await userCards.json();
-            console.log("Received cards data:", res);
+        // Join the game room for chat
+        socketManager.joinGame(game_id, user.username);
 
-            // Update player's hand
-            const playerHand = document.getElementById('playerHand');
-            console.log("Player hand element:", playerHand);
-            playerHand.innerHTML = ''; // Clear existing cards
-            
-            res.user.forEach(card => {
-                const cardElement = createCardElement(card);
-                playerHand.appendChild(cardElement);
-            });
-
-            // Update discard pile
-            const discardPile = document.getElementById('discardPile');
-            console.log("Discard pile element:", discardPile);
-            discardPile.innerHTML = ''; // Clear existing card
-            if (res.discard) {
-                const discardCard = createCardElement(res.discard);
-                discardPile.appendChild(discardCard);
+        // Check if user is already authenticated
+        auth.isAuthenticated().then(isAuth => {
+            if (!isAuth) {
+                window.location.href = "/login";
             }
-        } catch (error) {
-            console.error("Error updating UI:", error);
+        });
+
+        async function updateUI() {
+            try {
+                console.log("Fetching user cards...");
+                const userCards = await game.fetchUserCards(game_id, user_id);
+                const res = await userCards.json();
+                console.log("Received cards data:", res);
+
+                // Update player's hand
+                const playerHand = document.getElementById('playerHand');
+                console.log("Player hand element:", playerHand);
+                playerHand.innerHTML = ''; // Clear existing cards
+                
+                // Update discard pile first to get the top card
+                const discardPile = document.getElementById('discardPile');
+                console.log("Discard pile element:", discardPile);
+                discardPile.innerHTML = ''; // Clear existing card
+                let topCard = null;
+                if (res.discard) {
+                    topCard = res.discard;
+                    const discardCard = createCardElement(res.discard);
+                    discardPile.appendChild(discardCard);
+                }
+
+                // Add cards to player's hand with playable status
+                res.user.forEach(card => {
+                    const cardElement = createCardElement(card);
+                    const isPlayable = isCardPlayable(card, topCard);
+                    cardElement.classList.add(isPlayable ? 'playable' : 'unplayable');
+                    if (isPlayable) {
+                        cardElement.addEventListener('click', () => handleCardClick(card));
+                    }
+                    playerHand.appendChild(cardElement);
+                });
+            } catch (error) {
+                console.error("Error updating UI:", error);
+            }
         }
-    }
 
-    function createCardElement(card) {
-        console.log("Creating card element for:", card);
-        const cardDiv = document.createElement('div');
-        cardDiv.className = 'card';
-        cardDiv.dataset.cardId = card.id;
-        
-        // Determine the card image path based on card properties
-        let imagePath = '/cards/';
-        if (card.type === 'wild') {
-            imagePath += 'wild.svg';
-        } else if (card.type === 'action') {
-            imagePath += `${card.action}/${card.action}_${card.color}.svg`;
-        } else {
-            imagePath += `${card.value}/${card.value}_${card.color}.svg`;
+        function isCardPlayable(card, topCard) {
+            if (!topCard) return true; // If no top card, all cards are playable
+            
+            // Wild cards are always playable
+            if (card.type === 'wild') return true;
+            
+            // Check if colors match
+            if (card.color === topCard.color) return true;
+            
+            // For normal cards, check if values match
+            if (card.type === 'normal' && card.value === topCard.value) return true;
+            
+            // For action cards, check if actions match
+            if (card.type === 'action' && card.action === topCard.action) return true;
+            
+            return false;
         }
-        console.log("Card image path:", imagePath);
 
-        const img = document.createElement('img');
-        img.src = imagePath;
-        img.alt = `${card.color} ${card.value || card.action || 'wild'}`;
-        
-        cardDiv.appendChild(img);
-        return cardDiv;
-    }
+        function handleCardClick(card) {
+            console.log("Card clicked:", card);
+            // TODO: Implement card play logic
+        }
 
-    // Call updateUI when the page loads
-    document.addEventListener('DOMContentLoaded', () => {
-        console.log("DOM loaded, calling updateUI...");
-        updateUI();
-    });
+        function createCardElement(card) {
+            console.log("Creating card element for:", card);
+            const cardDiv = document.createElement('div');
+            cardDiv.className = 'card';
+            cardDiv.dataset.cardId = card.id;
+            
+            // Determine the card image path based on card properties
+            let imagePath = '/cards/';
+            if (card.type === 'wild') {
+                imagePath += `${card.action}/${card.action}.svg`;
+            } else if (card.type === 'action') {
+                imagePath += `${card.action}/${card.action}_${card.color}.svg`;
+            } else {
+                imagePath += `${card.value}/${card.value}_${card.color}.svg`;
+            }
+            console.log("Card image path:", imagePath);
 
-</script>
+            const img = document.createElement('img');
+            img.src = imagePath;
+            img.alt = `${card.color} ${card.value || card.action || 'wild'}`;
+            
+            cardDiv.appendChild(img);
+            return cardDiv;
+        }
+
+        // Call updateUI when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log("DOM loaded, calling updateUI...");
+            updateUI();
+        });
+    </script>
+</body>
 </html> 

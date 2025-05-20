@@ -6,6 +6,7 @@ window.SocketManager = {
     if (!this.instance) {
       this.instance = {
         gameId: null,
+        socket: null,
         init: function () {
           // Initialize socket connection
           this.socket = io("http://localhost:3000", {
@@ -32,12 +33,22 @@ window.SocketManager = {
 
           // Set up game-specific event listeners
           this.socket.on("playerJoined", (data) => {
-            console.log(`Player ${data.username} joined the game`);
             // You can emit a custom event to notify your UI
             window.dispatchEvent(
               new CustomEvent(`game_${gameId}:playerJoined`, { detail: data }),
             );
           });
+        },
+
+        startGame: function (gameId) {
+          if (!this.socket) {
+            console.log("No socket connection");
+            return;
+          }
+          this.socket.emit("gameStart", gameId.toString());
+          window.dispatchEvent(
+            new CustomEvent(`game_${gameId}:gameStarted`, { detail: data }),
+          );
         },
 
         sendMessage: function (message, username, game_id) {

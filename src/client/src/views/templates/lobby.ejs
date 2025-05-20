@@ -229,6 +229,11 @@
         }
       });
 
+      socketManager.getSocket()?.on("gameStarted", async (data) => {
+        console.log("Game started: ", data);
+        window.location.href = `/games/${gameId}/play`;
+      });
+
       socketManager.joinGame(gameId, user.username);
       
       updateGameUI();
@@ -252,7 +257,6 @@
         // Update start game button
         const startGameBtn = document.getElementById('start-game');
         const waitingMessage = document.getElementById('waiting-message');
-        console.log("gameData: ", gameData);
         
         if (userId === gameData.hostId) {
           if (gameData.playerCount >= 2) {
@@ -273,7 +277,11 @@
       // Start game button handler
       document.getElementById('start-game')?.addEventListener('click', async function() {
         const response = await game.startGame(gameId);
-        console.log("response: ", response);
+        if (response.ok) {
+          socketManager.startGame(gameId);
+        } else {
+          alert("Failed to start game");
+        }
       });
 
       // Close popup handler

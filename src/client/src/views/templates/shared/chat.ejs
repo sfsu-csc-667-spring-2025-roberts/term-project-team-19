@@ -45,7 +45,7 @@
     border-radius: 4px;
   }
 </style>
-
+<script src="/js/socket.js"></script>
 <script src="/js/chat.js"></script>
 <script src="/js/game.js"></script>
 
@@ -86,7 +86,7 @@
     });
 
     socketManager.getSocket()?.on('chatMessage', function(data) {
-      console.log(data);
+      console.log("chatMessage: ", data);
       const messageElement = document.createElement('div');
       messageElement.textContent = `${data.username}: ${data.message}`;
       chatMessages.appendChild(messageElement);

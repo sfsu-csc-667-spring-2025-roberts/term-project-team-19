@@ -120,6 +120,11 @@ try {
       io.to(`game_${game_id}`).emit("playerJoined", { username: username });
     });
 
+    socket.on("gameStart", (game_id: string) => {
+      console.log("gameStart: ", game_id);
+      io.to(`game_${game_id}`).emit("gameStarted", { game_id });
+    });
+
     socket.on("disconnect", () => {
       console.log("User disconnected:", socket.id);
     });
