@@ -314,9 +314,17 @@ const GameMove = sequelize.define("GameMove", {
       GameMoveType.REVERSE,
       GameMoveType.DRAW_FOUR,
       GameMoveType.DRAW_TWO,
-      GameMoveType.WILD,
     ),
     allowNull: false,
+  },
+  color: {
+    type: DataTypes.ENUM(
+      CardColor.RED,
+      CardColor.GREEN,
+      CardColor.BLUE,
+      CardColor.YELLOW,
+    ),
+    allowNull: true,
   },
   created_at: {
     type: DataTypes.DATE,

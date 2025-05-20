@@ -11,6 +11,7 @@
     <script src="/js/socket.js"></script>
     <script src="/js/auth.js"></script>
     <script src="/js/game.js"></script>
+    <script src="/js/gameplay.js"></script>
 </head>
 <body>
     <div class="container">
@@ -31,10 +32,82 @@
         </div>
     </div>
 
+    <!-- Wild Card Color Selection Popup -->
+    <div id="wildCardPopup" class="wild-card-popup" style="display: none;">
+        <div class="wild-card-content">
+            <h2>Choose a Color</h2>
+            <div class="color-options">
+                <div class="color-option" data-color="red">
+                    <img src="/cards/wild/wild_red.svg" alt="Wild Red">
+                </div>
+                <div class="color-option" data-color="green">
+                    <img src="/cards/wild/wild_green.svg" alt="Wild Green">
+                </div>
+                <div class="color-option" data-color="blue">
+                    <img src="/cards/wild/wild_blue.svg" alt="Wild Blue">
+                </div>
+                <div class="color-option" data-color="yellow">
+                    <img src="/cards/wild/wild_yellow.svg" alt="Wild Yellow">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .wild-card-popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .wild-card-content {
+            background-color: #1e1e1e;
+            padding: 2rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .wild-card-content h2 {
+            color: #ff4400;
+            margin-bottom: 1.5rem;
+        }
+
+        .color-options {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .color-option {
+            width: 100px;
+            height: 150px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .color-option:hover {
+            transform: translateY(-10px);
+        }
+
+        .color-option img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+    </style>
+
     <script>
         const game = Game.getInstance();
         const auth = Auth.getInstance();
         const socketManager = SocketManager.getInstance();
+        const gameplay = Gameplay.getInstance();
         
         const game_id = window.location.pathname.split('/')[2];
         const user = auth.getUser();
@@ -49,6 +122,8 @@
                 window.location.href = "/login";
             }
         });
+
+        let topCard = null;
 
         async function updateUI() {
             try {
@@ -66,7 +141,7 @@
                 const discardPile = document.getElementById('discardPile');
                 console.log("Discard pile element:", discardPile);
                 discardPile.innerHTML = ''; // Clear existing card
-                let topCard = null;
+                topCard = null;
                 if (res.discard) {
                     topCard = res.discard;
                     const discardCard = createCardElement(res.discard);
@@ -107,28 +182,59 @@
         }
 
         function handleCardClick(card) {
-            console.log("Card clicked:", card);
-            // TODO: Implement card play logic
+            if (card.type === 'wild') {
+                showWildCardPopup(card);
+            } else if (card.type === 'action') {
+                gameplay.playActionCard(game_id, card, true ? card.action === topCard.action : false);
+            } else {
+                gameplay.playCard(game_id, card, true ? card.value === topCard.value && card.color !== topCard.color : false);
+            }
         }
+
+
+        function showWildCardPopup(card) {
+            const popup = document.getElementById('wildCardPopup');
+            popup.style.display = 'flex';
+
+            // Add click handlers for color options
+            const colorOptions = document.querySelectorAll('.color-option');
+            colorOptions.forEach(option => {
+                option.onclick = () => {
+                    const selectedColor = option.dataset.color;
+                    console.log(`Selected color: ${selectedColor} for wild card:`, card);
+                    gameplay.playWildCard(game_id, card, selectedColor);
+                    popup.style.display = 'none';
+                };
+            });
+        }
+
+        document.getElementById('wildCardPopup').addEventListener('click', (e) => {
+            if (e.target.id === 'wildCardPopup') {
+                e.target.style.display = 'none';
+            }
+        });
 
         function createCardElement(card) {
             console.log("Creating card element for:", card);
             const cardDiv = document.createElement('div');
-            cardDiv.className = 'card';
+            
             cardDiv.dataset.cardId = card.id;
+            const img = document.createElement('img');
             
             // Determine the card image path based on card properties
             let imagePath = '/cards/';
             if (card.type === 'wild') {
-                imagePath += `${card.action}/${card.action}.svg`;
+                imagePath += `wild/wild.svg`;
+                cardDiv.className = 'card wild';
             } else if (card.type === 'action') {
                 imagePath += `${card.action}/${card.action}_${card.color}.svg`;
+                cardDiv.className = `card ${card.action}_${card.color}`;
             } else {
                 imagePath += `${card.value}/${card.value}_${card.color}.svg`;
+                cardDiv.className = `card ${card.value}_${card.color}`;
             }
             console.log("Card image path:", imagePath);
 
-            const img = document.createElement('img');
             img.src = imagePath;
             img.alt = `${card.color} ${card.value || card.action || 'wild'}`;
             

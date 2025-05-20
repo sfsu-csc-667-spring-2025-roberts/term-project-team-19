@@ -7,7 +7,7 @@ import {
 import { ParsedQs } from "qs";
 import { Session } from "express-session";
 import { ParamsDictionary } from "express-serve-static-core";
-import { GameStatus } from "../enum/enums";
+import { GameCardLocation, GameStatus } from "../enum/enums";
 
 export interface UserAttributes {
   id: number;
@@ -27,6 +27,7 @@ export interface GameAttributes {
   member_2_id: number | null;
   member_3_id: number | null;
   member_4_id: number | null;
+  player_count: number;
   status: GameStatus;
   current_turn: number;
   turn_direction: number;
@@ -51,6 +52,18 @@ export interface CardDefinitionAttributes {
 export interface CardDefinitionInstance
   extends Model<CardDefinitionAttributes>,
     CardDefinitionAttributes {}
+
+export interface GameCardAttributes {
+  id: number;
+  game_id: number;
+  card_definition_id: number;
+  location: GameCardLocation;
+  owner_id: number | null;
+}
+
+export interface GameCardInstance
+  extends Model<GameCardAttributes>,
+    GameCardAttributes {}
 
 export interface SessionUser {
   id: number;
