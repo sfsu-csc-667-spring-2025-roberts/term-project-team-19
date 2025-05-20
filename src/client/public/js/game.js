@@ -8,7 +8,7 @@ window.Game = {
         //socketManager: SocketManager.getInstance(),
         createGame: async () => {
           try {
-            const response = await fetch(`http://localhost:3000/games`, {
+            const response = await fetch(`http://localhost:3000/games/create`, {
               method: "POST",
               headers: auth.getAuthHeaders(),
               credentials: "include",
@@ -75,6 +75,22 @@ window.Game = {
             }
           } catch (error) {
             console.error("Failed to leave game:", error);
+            return null;
+          }
+        },
+        startGame: async (gameId) => {
+          try {
+            const response = await fetch(
+              `http://localhost:3000/games/${gameId}/start`,
+              {
+                method: "POST",
+                headers: auth.getAuthHeaders(),
+                credentials: "include",
+              },
+            );
+            return response;
+          } catch (error) {
+            console.error("Failed to start game:", error);
             return null;
           }
         },

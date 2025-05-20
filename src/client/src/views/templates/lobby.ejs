@@ -1,310 +1,295 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Lobby</title>
-  <% styles.forEach(function(style) { %>
-    <link rel="stylesheet" href="<%= style %>">
-  <% }); %>
-  <script src="/js/socket.js"></script>
-  <script src="/js/auth.js"></script>
-  <script src="/js/game.js"></script>
-  
-  <style>
-    .popup-overlay {
-      position: fixed;
-      top: 60px; /* Account for menu bar height */
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: rgba(0, 0, 0, 0.7);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-    }
+  <head>
+    <meta charset="UTF-8" />
+    <title>Lobby</title>
+    <% styles.forEach(function(style) { %>
+      <link rel="stylesheet" href="<%= style %>">
+    <% }); %>
+    <script src="/js/socket.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/game.js"></script>
+    
+    <style>
+      .popup-overlay {
+        position: fixed;
+        top: 60px; /* Account for menu bar height */
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.7);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+      }
 
-    .popup-window {
-      background: #121212;
-      border-radius: 8px;
-      width: 90%;
-      max-width: 1200px;
-      max-height: calc(90vh - 60px); /* Account for menu bar height */
-      position: relative;
-      display: flex;
-      flex-direction: column;
-    }
+      .popup-window {
+        background: #121212;
+        border-radius: 8px;
+        width: 90%;
+        max-width: 1200px;
+        max-height: calc(90vh - 60px); /* Account for menu bar height */
+        position: relative;
+        display: flex;
+        flex-direction: column;
+      }
 
-    .close-button {
-      position: absolute;
-      top: 15px;
-      right: 15px;
-      background: none;
-      border: none;
-      color: #888;
-      font-size: 24px;
-      cursor: pointer;
-      z-index: 1001;
-      padding: 5px;
-      line-height: 1;
-    }
+      .close-button {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: none;
+        border: none;
+        color: #888;
+        font-size: 24px;
+        cursor: pointer;
+        z-index: 1001;
+        padding: 5px;
+        line-height: 1;
+      }
 
-    .close-button:hover {
-      color: #ff4400;
-    }
+      .close-button:hover {
+        color: #ff4400;
+      }
 
-    .lobby-container {
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-      padding: 20px;
-    }
+      .lobby-container {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        padding: 20px;
+      }
 
-    .game-header {
-      text-align: center;
-      margin-bottom: 20px;
-      padding-top: 20px;
-    }
+      .game-header {
+        text-align: center;
+        margin-bottom: 20px;
+        padding-top: 20px;
+      }
 
-    .game-header h1 {
-      color: #ff4400;
-      font-size: 2.5rem;
-      margin: 0;
-    }
+      .game-header h1 {
+        color: #ff4400;
+        font-size: 2.5rem;
+        margin: 0;
+      }
 
-    .lobby-content {
-      display: flex;
-      gap: 20px;
-      flex: 1;
-      min-height: 0;
-    }
+      .lobby-content {
+        display: flex;
+        gap: 20px;
+        flex: 1;
+        min-height: 0;
+      }
 
-    .players-section {
-      width: 400px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      overflow-y: auto;
-    }
+      .players-section {
+        width: 400px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        overflow-y: auto;
+      }
 
-    .right-section {
-      width: 300px;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
+      .right-section {
+        width: 300px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
 
-    .list-item {
-      min-height: 100px;
-      display: flex;
-      align-items: center;
-      padding: 20px;
-      width: 100%;
-      height: 100px;
-    }
+      .list-item {
+        min-height: 100px;
+        display: flex;
+        align-items: center;
+        padding: 20px;
+        width: 100%;
+        height: 100px;
+      }
 
-    .game-info {
-      width: 100%;
-    }
+      .game-info {
+        width: 100%;
+      }
 
-    .game-info h3 {
-      font-size: 1.5rem;
-      margin-bottom: 10px;
-    }
+      .game-info h3 {
+        font-size: 1.5rem;
+        margin-bottom: 10px;
+      }
 
-    .chat-section {
-      width: 300px;
-      display: flex;
-      flex-direction: column;
-    }
+      .chat-section {
+        width: 300px;
+        display: flex;
+        flex-direction: column;
+      }
 
-    .chat-window {
-      height: 400px;
-      background: #1e1e1e;
-      border-radius: 8px;
-      padding: 15px;
-      display: flex;
-      flex-direction: column;
-    }
+      .chat-window {
+        height: 400px;
+        background: #1e1e1e;
+        border-radius: 8px;
+        padding: 15px;
+        display: flex;
+        flex-direction: column;
+      }
 
-    .chat-messages {
-      flex: 1;
-      overflow-y: auto;
-      margin-bottom: 10px;
-    }
+      .chat-messages {
+        flex: 1;
+        overflow-y: auto;
+        margin-bottom: 10px;
+      }
 
-    .chat-input {
-      display: flex;
-      gap: 10px;
-    }
+      .chat-input {
+        display: flex;
+        gap: 10px;
+      }
 
-    .chat-input input {
-      flex: 1;
-      padding: 8px;
-      background: #2e2e2e;
-      border: 1px solid #444;
-      color: white;
-      border-radius: 4px;
-    }
+      .chat-input input {
+        flex: 1;
+        padding: 8px;
+        background: #2e2e2e;
+        border: 1px solid #444;
+        color: white;
+        border-radius: 4px;
+      }
 
-    .start-game-container {
-      text-align: center;
-    }
+      .start-game-container {
+        text-align: center;
+      }
 
-    .waiting-message {
-      color: #888;
-      font-size: 1.1rem;
-      margin: 0;
-      padding: 10px;
-    }
-  </style>
-</head>
-<body>
-
+      .waiting-message {
+        color: #888;
+        font-size: 1.1rem;
+        margin: 0;
+        padding: 10px;
+      }
+    </style>
+  </head>
+  <body>
     <%- include('shared/head') %>
 
-
-  <div class="popup-overlay">
-    <div class="popup-window">
-      <button class="close-button" id="close-popup">×</button>
-      
-      <div class="lobby-container">
-        <div class="game-header">
-          <h1 id="game-name">Loading...</h1>
-        </div>
-
-        <div class="lobby-content">
-          <div class="players-section" id="players-section">
-            <!-- Players will be populated here -->
+    <div class="popup-overlay">
+      <div class="popup-window">
+        <button class="close-button" id="close-popup">×</button>
+        
+        <div class="lobby-container">
+          <div class="game-header">
+            <h1 id="game-name">Loading...</h1>
           </div>
 
-          <div class="right-section">
-            <%- include('shared/chat') %>
-            <div class="start-game-container">
-              <button 
-                class="create-game-button" 
-                id="start-game"
-                style="display: none;"
-              >
-                Start Game
-              </button>
-              <p class="waiting-message" id="waiting-message" style="display: none;">
-                Waiting for host to start the game...
-              </p>
+          <div class="lobby-content">
+            <div class="players-section" id="players-section">
+              <!-- Players will be populated here -->
+            </div>
+
+            <div class="right-section">
+              <%- include('shared/chat') %>
+              <div class="start-game-container">
+                <button 
+                  class="create-game-button" 
+                  id="start-game"
+                  style="display: none;"
+                >
+                  Start Game
+                </button>
+                <p class="waiting-message" id="waiting-message" style="display: none;">
+                  Waiting for host to start the game...
+                </p>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <script>
-    const game = Game.getInstance();
-    const user = auth.getUser();
-    const socketManager = SocketManager.getInstance();
-    
-    // const SocketManager = SocketManager.getInstance();
-    console.log("user: ", user);
-    const gameId = parseInt(window.location.pathname.split('/')[2]);
+    <script>
+      const game = Game.getInstance();
+      const user = auth.getUser();
+      const socketManager = SocketManager.getInstance();
+      
+      console.log("user: ", user);
+      const gameId = parseInt(window.location.pathname.split('/')[2]);
 
-    const userId = user.id;
+      const userId = user.id;
 
-    // Check if user is already authenticated
-    auth.isAuthenticated().then(isAuth => {
-      if (!isAuth) {
-        window.location.href = "/login";
-      }
-    });
+      // Check if user is already authenticated
+      auth.isAuthenticated().then(isAuth => {
+        if (!isAuth) {
+          window.location.href = "/login";
+        }
+      });
 
-    auth.userInGame(gameId).then(inGame => {
-      if (!inGame) {
-        alert("You are not in this game");
-        window.location.href = "/";
-      }
-    });
+      auth.userInGame(gameId).then(inGame => {
+        if (!inGame) {
+          alert("You are not in this game");
+          window.location.href = "/";
+        }
+      });
 
-    socketManager.joinGame(gameId, user.username);
-    socketManager.getSocket()?.on("playerJoined", async (data) => {
+      socketManager.getSocket()?.on("playerJoined", async (data) => {
         console.log("Player joined: ", user.username);
         const playerJoined = document.getElementById('player-joined');
         if (playerJoined) {
-            console.log("Player joined: ", data);
-            playerJoined.textContent = `Player ${data} joined the game`;
+          console.log("Player joined: ", data);
+          playerJoined.textContent = `Player ${data} joined the game`;
         }
-    });
-    updateGameUI();
+      });
 
-    
-
-    async function updateGameUI() {
-      let gameData = await game.fetchGame(gameId);
-      // Update game name
-      document.getElementById('game-name').textContent = gameData.name;
-
-      // Update players list
-      const playersSection = document.getElementById('players-section');
-      playersSection.innerHTML = gameData.players.map(player => `
-        <div class="list-item ${player.id === gameData.hostId ? 'host' : ''}">
-          <div class="game-info">
-            <h3>${player.username}</h3>
-            ${player.id === gameData.hostId ? '<p>Host</p>' : ''}
-          </div>
-        </div>
-      `).join('');
-
-      // Update start game button
-      const startGameBtn = document.getElementById('start-game');
-      const waitingMessage = document.getElementById('waiting-message');
-      console.log("gameData: ", gameData);
+      socketManager.joinGame(gameId, user.username);
       
-      if (userId === gameData.hostId) {
-        if (gameData.playerCount < 2) {
-          waitingMessage.style.display = 'none';
-          startGameBtn.style.display = 'block';
+      updateGameUI();
+
+      async function updateGameUI() {
+        let gameData = await game.fetchGame(gameId);
+        // Update game name
+        document.getElementById('game-name').textContent = gameData.name;
+
+        // Update players list
+        const playersSection = document.getElementById('players-section');
+        playersSection.innerHTML = gameData.players.map(player => `
+          <div class="list-item ${player.id === gameData.hostId ? 'host' : ''}">
+            <div class="game-info">
+              <h3>${player.username}</h3>
+              ${player.id === gameData.hostId ? '<p>Host</p>' : ''}
+            </div>
+          </div>
+        `).join('');
+
+        // Update start game button
+        const startGameBtn = document.getElementById('start-game');
+        const waitingMessage = document.getElementById('waiting-message');
+        console.log("gameData: ", gameData);
+        
+        if (userId === gameData.hostId) {
+          if (gameData.playerCount >= 2) {
+            waitingMessage.style.display = 'none';
+            startGameBtn.style.display = 'block';
+          } else {
+            waitingMessage.textContent = 'Must have at least 2 players to start game';
+            waitingMessage.style.display = 'block';
+            startGameBtn.style.display = 'none';
+          }
         } else {
-          waitingMessage.textContent = 'Must have at least 2 players to start game';
+          waitingMessage.textContent = 'Waiting for host to start game...';
           waitingMessage.style.display = 'block';
           startGameBtn.style.display = 'none';
         }
-      } else {
-        waitingMessage.textContent = 'Waiting for host to start game...';
-        waitingMessage.style.display = 'block';
-        startGameBtn.style.display = 'none';
       }
-    }
 
-    // Start game button handler
-    document.getElementById('start-game')?.addEventListener('click', function() {
-      fetch(`/games/${gameId}/start`, {
-        method: 'POST',
-        credentials: 'include'
-      })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Failed to start game');
-        }
-        window.location.href = `/game/${gameId}`;
-      })
-      .catch(error => {
-        console.error('Error starting game:', error);
+      // Start game button handler
+      document.getElementById('start-game')?.addEventListener('click', async function() {
+        const response = await game.startGame(gameId);
+        console.log("response: ", response);
       });
-    });
 
-    // Close popup handler
-    document.getElementById('close-popup').addEventListener('click', async function() {
-      console.log("close-popup");
-      try {
-        const response = await game.leaveGame(gameId);
-        if (response && response.user) {
-          auth.setAuthData(response); // Update local storage with new session data
+      // Close popup handler
+      document.getElementById('close-popup').addEventListener('click', async function() {
+        console.log("close-popup");
+        try {
+          const response = await game.leaveGame(gameId);
+          if (response && response.user) {
+            auth.setAuthData(response); // Update local storage with new session data
+          }
+          await socketManager.leaveGame(gameId);
+          window.location.href = '/';
+        } catch (error) {
+          console.error('Error leaving game:', error);
         }
-        await socketManager.leaveGame(gameId);
-        window.location.href = '/';
-      } catch (error) {
-        console.error('Error leaving game:', error);
-      }
-    });
-
-  </script>
-</body>
+      });
+    </script>
+  </body>
 </html>

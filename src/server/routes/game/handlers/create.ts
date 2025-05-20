@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { Game, User } from "../../../db/schema";
+import { Game, GamePlayer, User } from "../../../db/schema";
 import { GameStatus } from "../../../enum/enums";
 import { Op } from "sequelize";
 import { io } from "../../../index"; // Add this import
@@ -29,7 +29,7 @@ export const createGameHandler: AuthenticatedRequestHandler = async (
 
   const host_id = user.id;
 
-  // check if game exists where user is either host or member
+  // check if game exists where user is host
   const game = await Game.findOne({
     where: {
       host_id: host_id,
@@ -51,6 +51,13 @@ export const createGameHandler: AuthenticatedRequestHandler = async (
     max_players: 4,
     player_count: 1,
   })) as GameInstance;
+
+  // add user to game
+  await GamePlayer.create({
+    game_id: newGame.id,
+    user_id: host_id,
+    player_id: host_id,
+  });
 
   // await db_user.update({ game_id: newGame.id });
   //user.game_id = newGame.id;

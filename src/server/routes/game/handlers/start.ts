@@ -1,5 +1,11 @@
 import { Response } from "express";
-import { CardDefinition, Game, GameCard } from "../../../db/schema";
+import {
+  CardDefinition,
+  Game,
+  GameCard,
+  GamePlayer,
+  User,
+} from "../../../db/schema";
 import { GameCardLocation, GameStatus } from "../../../enum/enums";
 import {
   AuthenticatedRequestHandler,
@@ -9,6 +15,7 @@ import {
   CardDefinitionInstance,
 } from "../../../types";
 import { initializeCards } from "../../../db/init_cards";
+import { c } from "vite/dist/node/moduleRunnerTransport.d-DJ_mE5sf";
 
 // Helper function to shuffle array
 const shuffleArray = <T>(array: T[]): T[] => {
@@ -24,15 +31,15 @@ const createGameCards = async (game_id: number) => {
   const cardDefinitions =
     (await CardDefinition.findAll()) as CardDefinitionInstance[];
 
-  // Create a deck with 2 of each card (standard UNO deck)
-  const deck = [...cardDefinitions, ...cardDefinitions];
+  // Create a deck with 3 of each card (standard UNO deck)
+  const deck = [...cardDefinitions, ...cardDefinitions, ...cardDefinitions];
 
   // Shuffle the deck
   const shuffledDeck = shuffleArray(deck);
 
   // Get game details to find all players
   const game = (await Game.findByPk(game_id)) as GameInstance;
-  const players = [
+  const player_ids = [
     // get all players from the game
     game.host_id,
     game.member_2_id,
@@ -40,61 +47,36 @@ const createGameCards = async (game_id: number) => {
     game.member_4_id,
   ].filter((id) => id !== null);
 
-  // create an empty dictionary of players with their cards
-  let playerHands: { [key: number]: number } = {};
-
-  for (let player of players) {
-    playerHands[player] = 0;
-  }
-
-  let currentPlayer = 0;
-
-  let gameCards = [];
-
-  for (let i = 0; i < shuffledDeck.length; i++) {
-    if (i === 0) {
-      gameCards.push({
-        game_id,
-        card_definition_id: shuffledDeck[i].id,
-        location: GameCardLocation.DISCARD_PILE,
-        owner_id: null,
-      });
-    }
-
-    // add remaining cards to the discard pile
-    if (currentPlayer === -1) {
-      gameCards.push({
-        game_id,
-        card_definition_id: shuffledDeck[i].id,
-        location: GameCardLocation.DISCARD_PILE,
-        owner_id: null,
-      });
-    }
-
-    // add cards to the player's hand
-    else if (playerHands[currentPlayer] < 7) {
-      gameCards.push({
+  let i = 0;
+  for (let player_id of player_ids) {
+    let cards = 0;
+    while (cards < 7) {
+      await GameCard.create({
         game_id,
         card_definition_id: shuffledDeck[i].id,
         location: GameCardLocation.HAND,
-        owner_id: currentPlayer,
+        owner_id: player_id,
       });
-      playerHands[currentPlayer]++;
-
-      // if the player has 7 cards
-      if (
-        playerHands[currentPlayer] == 7 &&
-        currentPlayer + 1 < players.length
-      ) {
-        currentPlayer++;
-      } else {
-        currentPlayer = -1;
-      }
+      cards++;
+      i++;
     }
   }
 
-  // Bulk create all game cards
-  await GameCard.bulkCreate(gameCards);
+  // add the next card to the discard pile
+  await GameCard.create({
+    game_id,
+    card_definition_id: shuffledDeck[i].id,
+    location: GameCardLocation.DISCARD_PILE,
+  });
+
+  // add remaining cards to the deck
+  for (let j = i + 1; j < shuffledDeck.length; j++) {
+    await GameCard.create({
+      game_id,
+      card_definition_id: shuffledDeck[j].id,
+      location: GameCardLocation.DECK,
+    });
+  }
 };
 
 export const startGameHandler: AuthenticatedRequestHandler = async (
@@ -140,6 +122,29 @@ export const startGameHandler: AuthenticatedRequestHandler = async (
 
   // Initialize cards
   await createGameCards(game_id);
+
+  // get all players from the game
+  const players = [
+    game.host_id,
+    game.member_2_id,
+    game.member_3_id,
+    game.member_4_id,
+  ].filter((id) => id !== null);
+
+  // assign seat numbers to players
+  for (let i = 0; i < players.length; i++) {
+    let player = await GamePlayer.findOne({
+      where: {
+        game_id: game_id,
+        user_id: players[i],
+      },
+    });
+    if (player) {
+      await player.update({
+        seat_number: i + 1,
+      });
+    }
+  }
 
   await game.update({
     status: GameStatus.PLAYING,
