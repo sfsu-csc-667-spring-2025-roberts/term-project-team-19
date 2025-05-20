@@ -158,7 +158,7 @@
                 // Add cards to player's hand with playable status
                 res.user.forEach(card => {
                     const cardElement = createCardElement(card);
-                    const isPlayable = isCardPlayable(card, topCard);
+                    const isPlayable = isCardPlayable(card, topCard, res.currentTurn);
                     cardElement.classList.add(isPlayable ? 'playable' : 'unplayable');
                     if (isPlayable) {
                         cardElement.addEventListener('click', () => handleCardClick(card));
@@ -170,7 +170,11 @@
             }
         }
 
-        function isCardPlayable(card, topCard) {
+        function isCardPlayable(card, topCard, currentTurn) {
+            if (auth.getUser().id !== currentTurn.user_id) {
+                return false;
+            }
+
             if (!topCard) return true; // If no top card, all cards are playable
             
             // Wild cards are always playable

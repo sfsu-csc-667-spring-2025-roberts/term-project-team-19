@@ -1,5 +1,9 @@
-import { GameCard, CardDefinition } from "../../../db/schema";
-import { AuthenticatedRequestHandler, SessionUser } from "../../../types";
+import { GameCard, CardDefinition, Game, GamePlayer } from "../../../db/schema";
+import {
+  AuthenticatedRequestHandler,
+  GameInstance,
+  SessionUser,
+} from "../../../types";
 import { AuthenticatedRequest } from "../../../types";
 import { Response } from "express";
 import { GameCardLocation } from "../../../enum/enums";
@@ -18,6 +22,11 @@ interface CardDefinitionInstance extends Model {
   value: number | null;
 }
 
+interface GamePlayerInstance extends Model {
+  username: string;
+  user_id: number;
+}
+
 export const getUserCardsHandler: AuthenticatedRequestHandler = async (
   req: AuthenticatedRequest,
   res: Response,
@@ -27,6 +36,12 @@ export const getUserCardsHandler: AuthenticatedRequestHandler = async (
   const user = req.session.user as SessionUser;
   if (!user) {
     res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+
+  const game = (await Game.findByPk(game_id)) as GameInstance;
+  if (!game) {
+    res.status(404).json({ error: "Game not found" });
     return;
   }
 
@@ -79,5 +94,13 @@ export const getUserCardsHandler: AuthenticatedRequestHandler = async (
       }
     : null;
 
-  res.json({ user: formattedUserCards, discard: formattedDiscardCard });
+  const currentTurnPlayer = (await GamePlayer.findOne({
+    where: { game_id, seat_number: game.current_turn },
+  })) as GamePlayerInstance;
+
+  res.json({
+    user: formattedUserCards,
+    discard: formattedDiscardCard,
+    currentTurn: currentTurnPlayer,
+  });
 };
