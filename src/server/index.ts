@@ -24,6 +24,7 @@ import * as config from "./config";
 import { sessionMiddleware } from "./config/session";
 import { User } from "client/src/types";
 import { SessionUser } from "./types";
+import playRouter from "./routes/gamedriver";
 
 const app = express();
 const server = http.createServer(app);
@@ -67,6 +68,7 @@ app.use("/auth", authRoutes);
 app.use("/games", gamesRoutes);
 app.use("/chat", chatRouter);
 app.use("/friendship", friendRoutes);
+app.use("/play", playRouter);
 
 app.use((_, __, next) => {
   next(httpErrors(404));

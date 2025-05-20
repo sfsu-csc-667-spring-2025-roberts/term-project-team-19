@@ -100,6 +100,14 @@ router.post(
 );
 
 router.get(
+  "/games/:game_id/play",
+  //requestHandler.requireAuth,
+  (req: Request, res: Response) => {
+    new GameView().render(res);
+  },
+);
+
+router.get(
   "/games/:id/lobby",
   //requestHandler.requireAuth,
   (req: Request, res: Response) => {

@@ -13,17 +13,93 @@
     <div class="container">
         <h1>Game Room</h1>
         <div id="gameBoard">
-            <!-- Game board will be populated dynamically -->
+            <div id="discardPile" class="discard-pile">
+                <!-- Discard pile will be displayed here -->
+            </div>
+            <div class="game-chat">
+                <%- include('shared/chat') %>
+            </div>
+        </div>
+        <div id="playerHand" class="player-hand">
+            <!-- Player's cards will be displayed here -->
         </div>
         <div id="gameControls">
             <button id="leaveGame">Leave Game</button>
         </div>
     </div>
 </body>
+<script src="/js/socket.js"></script>
+<script src="/js/game.js"></script>
 <script>
     const auth = Auth.getInstance();
     if (!auth.isAuthenticated()) {
         window.location.href = '/login';
     }
+    const game = Game.getInstance();
+
+    const game_id = window.location.pathname.split('/')[2];
+    const user_id = auth.getUser().id;
+
+    async function updateUI() {
+        try {
+            console.log("Fetching user cards...");
+            const userCards = await game.fetchUserCards(game_id, user_id);
+            const res = await userCards.json();
+            console.log("Received cards data:", res);
+
+            // Update player's hand
+            const playerHand = document.getElementById('playerHand');
+            console.log("Player hand element:", playerHand);
+            playerHand.innerHTML = ''; // Clear existing cards
+            
+            res.user.forEach(card => {
+                const cardElement = createCardElement(card);
+                playerHand.appendChild(cardElement);
+            });
+
+            // Update discard pile
+            const discardPile = document.getElementById('discardPile');
+            console.log("Discard pile element:", discardPile);
+            discardPile.innerHTML = ''; // Clear existing card
+            if (res.discard) {
+                const discardCard = createCardElement(res.discard);
+                discardPile.appendChild(discardCard);
+            }
+        } catch (error) {
+            console.error("Error updating UI:", error);
+        }
+    }
+
+    function createCardElement(card) {
+        console.log("Creating card element for:", card);
+        const cardDiv = document.createElement('div');
+        cardDiv.className = 'card';
+        cardDiv.dataset.cardId = card.id;
+        
+        // Determine the card image path based on card properties
+        let imagePath = '/cards/';
+        if (card.type === 'wild') {
+            imagePath += 'wild.svg';
+        } else if (card.type === 'action') {
+            imagePath += `${card.action}/${card.action}_${card.color}.svg`;
+        } else {
+            imagePath += `${card.value}/${card.value}_${card.color}.svg`;
+        }
+        console.log("Card image path:", imagePath);
+
+        const img = document.createElement('img');
+        img.src = imagePath;
+        img.alt = `${card.color} ${card.value || card.action || 'wild'}`;
+        
+        cardDiv.appendChild(img);
+        return cardDiv;
+    }
+
+    // Call updateUI when the page loads
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log("DOM loaded, calling updateUI...");
+        updateUI();
+    });
+
 </script>
 </html> 

@@ -88,7 +88,12 @@ window.Game = {
                 credentials: "include",
               },
             );
-            return response;
+            if (response.ok) {
+              window.location.href = `/games/${gameId}/play`;
+              return await response.json();
+            } else {
+              return await response.json();
+            }
           } catch (error) {
             console.error("Failed to start game:", error);
             return null;
@@ -136,6 +141,22 @@ window.Game = {
             }
           } catch (error) {
             console.error("Failed to fetch games:", error);
+            return null;
+          }
+        },
+        fetchUserCards: async (game_id, user_id) => {
+          try {
+            const response = await fetch(
+              `http://localhost:3000/play/${game_id}/${user_id}/cards`,
+              {
+                method: "GET",
+                headers: auth.getAuthHeaders(),
+                credentials: "include",
+              },
+            );
+            return response;
+          } catch (error) {
+            console.error("Failed to fetch user cards:", error);
             return null;
           }
         },

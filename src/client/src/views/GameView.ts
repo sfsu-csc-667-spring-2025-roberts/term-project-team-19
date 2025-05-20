@@ -8,7 +8,7 @@ export class GameView extends BaseView {
   protected getData(): Record<string, any> {
     return {
       title: "Game",
-      styles: ["/styles.css"],
+      styles: ["/styles.css", "/css/game.css"],
     };
   }
 }
