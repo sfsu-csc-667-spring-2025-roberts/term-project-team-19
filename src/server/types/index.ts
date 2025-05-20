@@ -51,7 +51,9 @@ export interface CardDefinitionAttributes {
 
 export interface CardDefinitionInstance
   extends Model<CardDefinitionAttributes>,
-    CardDefinitionAttributes {}
+    CardDefinitionAttributes {
+  type: import("/Users/fone/term-project-team-19/src/server/enum/enums").CardType;
+}
 
 export interface GameCardAttributes {
   id: number;

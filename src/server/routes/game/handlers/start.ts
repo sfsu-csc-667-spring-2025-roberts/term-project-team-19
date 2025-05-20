@@ -6,7 +6,7 @@ import {
   GamePlayer,
   User,
 } from "../../../db/schema";
-import { GameCardLocation, GameStatus } from "../../../enum/enums";
+import { CardType, GameCardLocation, GameStatus } from "../../../enum/enums";
 import {
   AuthenticatedRequestHandler,
   AuthenticatedRequest,
@@ -62,12 +62,24 @@ const createGameCards = async (game_id: number) => {
     }
   }
 
-  // add the next card to the discard pile
-  await GameCard.create({
-    game_id,
-    card_definition_id: shuffledDeck[i].id,
-    location: GameCardLocation.DISCARD_PILE,
-  });
+  // add the first normal card to the discard pile
+  while (i < shuffledDeck.length) {
+    if (shuffledDeck[i].type === CardType.NORMAL) {
+      await GameCard.create({
+        game_id,
+        card_definition_id: shuffledDeck[i].id,
+        location: GameCardLocation.DISCARD_PILE,
+      });
+      break;
+    } else {
+      await GameCard.create({
+        game_id,
+        card_definition_id: shuffledDeck[i].id,
+        location: GameCardLocation.DECK,
+      });
+    }
+    i++;
+  }
 
   // add remaining cards to the deck
   for (let j = i + 1; j < shuffledDeck.length; j++) {
