@@ -31,7 +31,8 @@ export const getUserCardsHandler: AuthenticatedRequestHandler = async (
   }
 
   const userCards = (await GameCard.findAll({
-    where: { game_id, owner_id: user_id },
+    where: { game_id, owner_id: user_id, location: GameCardLocation.HAND },
+    order: [["updated_at", "DESC"]],
     include: [
       {
         model: CardDefinition,
@@ -43,7 +44,7 @@ export const getUserCardsHandler: AuthenticatedRequestHandler = async (
   // get the last card in the discard pile
   const currentDiscardPileCard = (await GameCard.findOne({
     where: { game_id, location: GameCardLocation.DISCARD_PILE },
-    order: [["created_at", "DESC"]],
+    order: [["updatedAt", "DESC"]],
     include: [
       {
         model: CardDefinition,

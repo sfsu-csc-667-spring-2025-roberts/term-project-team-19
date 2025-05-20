@@ -87,14 +87,17 @@ try {
       ({
         gameId,
         card,
-        playerId,
+        username,
       }: {
         gameId: string;
         card: any;
-        playerId: string;
+        username: string;
       }) => {
-        // TODO: Validate and update game state in DB
-        io.to(`game_${gameId}`).emit("cardPlayed", { card, playerId });
+        console.log(`${username} played a ${card} card`);
+        io.to(`game_${gameId}`).emit("cardPlayed", { card, username });
+        io.to(`game_${gameId}`).emit("ChatMessage", {
+          message: `${username} played a ${card} card`,
+        });
       },
     );
 

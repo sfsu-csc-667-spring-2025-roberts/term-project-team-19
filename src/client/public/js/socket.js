@@ -65,10 +65,24 @@ window.SocketManager = {
 
           this.socket.emit("leaveGame", gameId.toString());
         },
+
+        playCard: function (gameId, card) {
+          if (!this.socket || !gameId || !card) return;
+          const user = auth.getUser();
+          console.log("playCard: ", gameId, card, user.username);
+
+          this.socket.emit("playCard", {
+            gameId,
+            card,
+            username: user.username,
+          });
+        },
+
         getSocket: function () {
           return this.socket;
         },
       };
+
       this.instance.init();
     }
     return this.instance;

@@ -113,15 +113,22 @@
         const user = auth.getUser();
         const user_id = user.id;
 
-        // Join the game room for chat
-        socketManager.joinGame(game_id, user.username);
-
         // Check if user is already authenticated
         auth.isAuthenticated().then(isAuth => {
             if (!isAuth) {
                 window.location.href = "/login";
             }
         });
+
+        // Join the game room for chat
+        socketManager.joinGame(game_id, user.username);
+
+        socketManager.getSocket()?.on('cardPlayed', (data) => {
+            console.log("Card played:", data);
+            updateUI();
+        });
+
+
 
         let topCard = null;
 
@@ -181,29 +188,42 @@
             return false;
         }
 
-        function handleCardClick(card) {
+        async function handleCardClick(card) {
             if (card.type === 'wild') {
                 showWildCardPopup(card);
             } else if (card.type === 'action') {
-                gameplay.playActionCard(game_id, card, true ? card.action === topCard.action : false);
+                const response = await gameplay.playActionCard(game_id, card, true ? card.action === topCard.action : false);
+                if (response.ok) {
+                    const cardString = card.color + " " + card.action;
+                    socketManager.playCard(game_id, cardString);
+                }
             } else {
-                gameplay.playCard(game_id, card, true ? card.value === topCard.value && card.color !== topCard.color : false);
+                const response = await gameplay.playCard(game_id, card, true ? card.value === topCard.value && card.color !== topCard.color : false);
+                if (response.ok) {
+                    const cardString = card.color + " " + card.value;
+                    socketManager.playCard(game_id, cardString);
+                }
             }
         }
 
 
-        function showWildCardPopup(card) {
+        async function showWildCardPopup(card) {
             const popup = document.getElementById('wildCardPopup');
             popup.style.display = 'flex';
 
             // Add click handlers for color options
             const colorOptions = document.querySelectorAll('.color-option');
             colorOptions.forEach(option => {
-                option.onclick = () => {
+                option.onclick = async () => {
                     const selectedColor = option.dataset.color;
                     console.log(`Selected color: ${selectedColor} for wild card:`, card);
-                    gameplay.playWildCard(game_id, card, selectedColor);
+                    
                     popup.style.display = 'none';
+                    const response = await gameplay.playWildCard(game_id, card, selectedColor);
+                    if (response.ok) {
+                        const cardString = card.color + " " + card.type;
+                        socketManager.playCard(game_id, cardString);
+                    }
                 };
             });
         }

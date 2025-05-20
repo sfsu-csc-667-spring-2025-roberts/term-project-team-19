@@ -1,9 +1,5 @@
 import { GameCard, CardDefinition, Game, GameMove } from "../../../db/schema";
-import {
-  AuthenticatedRequestHandler,
-  GameInstance,
-  SessionUser,
-} from "../../../types";
+import { AuthenticatedRequestHandler, GameInstance } from "../../../types";
 import { AuthenticatedRequest } from "../../../types";
 import { Response, Request, RequestHandler } from "express";
 import {
@@ -59,12 +55,6 @@ export const playCardHandler: AuthenticatedRequestHandler = async (
   const game_id = req.params.game_id;
   const user_id = req.session.user?.id;
 
-  const user = req.session.user as SessionUser;
-  if (!user) {
-    res.status(401).json({ error: "Unauthorized" });
-    return;
-  }
-
   const game = (await Game.findByPk(game_id)) as GameInstance;
   if (!game) {
     res.status(404).json({ error: "Game not found" });
@@ -114,6 +104,7 @@ export const playCardHandler: AuthenticatedRequestHandler = async (
   if (body.type === CardType.NORMAL) {
     if (body.color === null || body.action !== null || body.value === null) {
       res.status(400).json({ error: "Invalid normal card" });
+      return;
     }
 
     if (
@@ -122,10 +113,12 @@ export const playCardHandler: AuthenticatedRequestHandler = async (
       lastCard.CardDefinition.value !== body.value
     ) {
       res.status(400).json({ error: "Invalid card" });
+      return;
     }
   } else if (body.type === CardType.ACTION) {
     if (body.action === null || body.value !== null) {
       res.status(400).json({ error: "Invalid action card" });
+      return;
     }
     // card must match last card
     if (
@@ -134,6 +127,7 @@ export const playCardHandler: AuthenticatedRequestHandler = async (
       lastCard.CardDefinition.action !== body.action
     ) {
       res.status(400).json({ error: "Invalid card" });
+      return;
     }
 
     // update turn direction
@@ -163,4 +157,5 @@ export const playCardHandler: AuthenticatedRequestHandler = async (
   await updateTurn(game, game.turn_direction);
 
   res.status(200).json({ message: "Card played" });
+  return;
 };

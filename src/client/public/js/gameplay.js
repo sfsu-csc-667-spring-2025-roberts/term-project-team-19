@@ -30,7 +30,7 @@ window.Gameplay = {
               credentials: "include",
             },
           );
-          console.log("Card played:", response);
+          return response;
         },
 
         async playWildCard(game_id, card, color, change_color = true) {
@@ -57,7 +57,7 @@ window.Gameplay = {
               credentials: "include",
             },
           );
-          console.log("Wild card played:", response);
+          return response;
         },
 
         async playActionCard(game_id, card, change_color = false) {
@@ -84,7 +84,7 @@ window.Gameplay = {
               credentials: "include",
             },
           );
-          console.log("Action card played:", response);
+          return response;
         },
       };
     }
