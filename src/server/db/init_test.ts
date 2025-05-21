@@ -28,6 +28,11 @@ export const initializeTestUsers = async () => {
         email: "test2@test.com",
         password: hashedPassword,
       },
+      {
+        username: "chatbot",
+        email: "chatbot@test.com",
+        password: hashedPassword,
+      },
     ];
 
     const testGame = {

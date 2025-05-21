@@ -123,9 +123,10 @@
         // Join the game room for chat
         socketManager.joinGame(game_id, user.username);
 
-        socketManager.getSocket()?.on('cardPlayed', (data) => {
+        socketManager.getSocket()?.on('cardPlayed', async (data) => {
             console.log("Card played:", data);
             updateUI();
+            handleTurn();
         });
 
 
@@ -134,14 +135,13 @@
 
         async function updateUI() {
             try {
+                const gameData = await game.fetchUserCards(game_id, user_id);
+                const res = await gameData.json();
                 console.log("Fetching user cards...");
-                const userCards = await game.fetchUserCards(game_id, user_id);
-                const res = await userCards.json();
-                console.log("Received cards data:", res);
+                console.log("Game data:", res);
 
                 // Update player's hand
                 const playerHand = document.getElementById('playerHand');
-                console.log("Player hand element:", playerHand);
                 playerHand.innerHTML = ''; // Clear existing cards
                 
                 // Update discard pile first to get the top card
@@ -170,11 +170,64 @@
             }
         }
 
+        async function handleTurn() {
+            const gameData = await game.fetchUserCards(game_id, user_id);
+            const res = await gameData.json();
+            const currentTurn = res.currentTurn;
+            const lastCardPlayed = res.discard;
+            if (currentTurn.user_id === user_id) {
+                socketManager.getSocket()?.emit('currentTurn', {
+                    game_id: game_id,
+                    user_id: user_id,
+                });
+
+                if (lastCardPlayed.type === 'action' && lastCardPlayed.action === 'skip') {
+                    // TODO: handle in server
+                    socketManager.getSocket()?.emit('skipTurn', {
+                        game_id: game_id,
+                        user_id: user_id,
+                    });
+                    return;
+                }
+
+                if (lastCardPlayed.type === 'action' && lastCardPlayed.action === 'reverse') {
+                    // TODO: handle in server
+                    socketManager.getSocket()?.emit('reverseTurn', {
+                        game_id: game_id,
+                        user_id: user_id,
+                    });
+                    return;
+                }
+
+                if (lastCardPlayed.type === 'action' && lastCardPlayed.action === 'draw_two') {
+                    // TODO: handle in server
+                    socketManager.getSocket()?.emit('drawTwo', {
+                        game_id: game_id,
+                        user_id: user_id,
+                    });
+                    return;
+                }
+
+                if (lastCardPlayed.type === 'action' && lastCardPlayed.action === 'draw_four') {
+                    // TODO: handle in server
+                    socketManager.getSocket()?.emit('drawFour', {
+                        game_id: game_id,
+                        user_id: user_id,
+                    });
+                    return;
+                }
+            }
+
+        }
+        
+
         function isCardPlayable(card, topCard, currentTurn) {
             if (auth.getUser().id !== currentTurn.user_id) {
                 return false;
             }
 
+            console.log("topCard:", topCard);
+            console.log("card:", card);
             if (!topCard) return true; // If no top card, all cards are playable
             
             // Wild cards are always playable
@@ -225,7 +278,7 @@
                     popup.style.display = 'none';
                     const response = await gameplay.playWildCard(game_id, card, selectedColor);
                     if (response.ok) {
-                        const cardString = card.color + " " + card.type;
+                        const cardString = selectedColor + " " + card.type;
                         socketManager.playCard(game_id, cardString);
                     }
                 };
@@ -248,7 +301,11 @@
             // Determine the card image path based on card properties
             let imagePath = '/cards/';
             if (card.type === 'wild') {
-                imagePath += `wild/wild.svg`;
+                if (card.color === 'none') {
+                    imagePath += `wild/wild.svg`;
+                } else {
+                    imagePath += `wild/wild_${card.color}.svg`;
+                }
                 cardDiv.className = 'card wild';
             } else if (card.type === 'action') {
                 imagePath += `${card.action}/${card.action}_${card.color}.svg`;
@@ -267,8 +324,9 @@
         }
 
         // Call updateUI when the page loads
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             console.log("DOM loaded, calling updateUI...");
+            
             updateUI();
         });
     </script>

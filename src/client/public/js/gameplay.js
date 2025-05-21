@@ -37,7 +37,7 @@ window.Gameplay = {
           const user = this.auth.getUser();
           const req_body = {
             game_id: game_id,
-            player_id: user.id,
+            user_id: user.id,
             game_card_id: card.id,
             type: card.type,
             color: color,

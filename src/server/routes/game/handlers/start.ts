@@ -31,6 +31,12 @@ const createGameCards = async (game_id: number) => {
   const cardDefinitions =
     (await CardDefinition.findAll()) as CardDefinitionInstance[];
 
+  // remove last 4 wild cards from the deck
+  cardDefinitions.pop();
+  cardDefinitions.pop();
+  cardDefinitions.pop();
+  cardDefinitions.pop();
+
   // Create a deck with 3 of each card (standard UNO deck)
   const deck = [...cardDefinitions, ...cardDefinitions, ...cardDefinitions];
 
@@ -160,7 +166,7 @@ export const startGameHandler: AuthenticatedRequestHandler = async (
 
   await game.update({
     status: GameStatus.PLAYING,
-    current_turn: user.id,
+    current_turn: 1,
     turn_direction: 1,
   });
 

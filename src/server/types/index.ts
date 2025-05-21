@@ -8,6 +8,7 @@ import { ParsedQs } from "qs";
 import { Session } from "express-session";
 import { ParamsDictionary } from "express-serve-static-core";
 import { GameCardLocation, GameStatus } from "../enum/enums";
+import { GamePlayer } from "client/src/types/game";
 
 export interface UserAttributes {
   id: number;
@@ -21,6 +22,13 @@ export interface UserAttributes {
 
 export interface UserInstance extends Model<UserAttributes>, UserAttributes {}
 
+export interface GamePlayerInstance extends Model {
+  id: number;
+  game_id: number;
+  user_id: number;
+  seat_number: number;
+}
+
 export interface GameAttributes {
   id: number;
   host_id: number | null;
@@ -28,6 +36,7 @@ export interface GameAttributes {
   member_3_id: number | null;
   member_4_id: number | null;
   player_count: number;
+  gamePlayers: GamePlayerInstance[];
   status: GameStatus;
   current_turn: number;
   turn_direction: number;
@@ -61,6 +70,7 @@ export interface GameCardAttributes {
   card_definition_id: number;
   location: GameCardLocation;
   owner_id: number | null;
+  CardDefinition: CardDefinitionInstance;
 }
 
 export interface GameCardInstance

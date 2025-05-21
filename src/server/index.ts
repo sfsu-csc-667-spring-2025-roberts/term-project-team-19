@@ -22,9 +22,9 @@ import friendRoutes from "./routes/friends/index";
 
 import * as config from "./config";
 import { sessionMiddleware } from "./config/session";
-import { User } from "client/src/types";
-import { SessionUser } from "./types";
+import { SessionUser, UserInstance } from "./types";
 import playRouter from "./routes/gamedriver";
+import { Chatlog, User } from "./db/schema";
 
 const app = express();
 const server = http.createServer(app);
@@ -84,7 +84,7 @@ try {
 
     socket.on(
       "playCard",
-      ({
+      async ({
         gameId,
         card,
         username,
@@ -95,8 +95,35 @@ try {
       }) => {
         console.log(`${username} played a ${card} card`);
         io.to(`game_${gameId}`).emit("cardPlayed", { card, username });
-        io.to(`game_${gameId}`).emit("ChatMessage", {
+
+        // send game move chat log
+        await Chatlog.create({
+          game_id: gameId,
+          user_id: 3,
           message: `${username} played a ${card} card`,
+          timestamp: Date.now(),
+        });
+        io.to(`game_${gameId}`).emit("chatMessage", {
+          message: `${username.toUpperCase()} played a ${card.toUpperCase()} CARD`,
+          username: "chatbot",
+        });
+      },
+    );
+
+    socket.on(
+      "currentTurn",
+      async ({ game_id, user_id }: { game_id: string; user_id: number }) => {
+        const user = (await User.findByPk(user_id)) as UserInstance;
+        // send game move chat log
+        await Chatlog.create({
+          game_id: game_id,
+          user_id: 3,
+          message: `It's ${user.username.toUpperCase()}'s turn`,
+          timestamp: Date.now(),
+        });
+        io.to(`game_${game_id}`).emit("chatMessage", {
+          message: `It's ${user.username.toUpperCase()}'s turn`,
+          username: "chatbot",
         });
       },
     );

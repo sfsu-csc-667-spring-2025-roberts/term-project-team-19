@@ -56,14 +56,15 @@
     const chatMessages = document.getElementById('chat-messages');
     const socketManager = SocketManager.getInstance();
     const chat = Chat.getInstance();
+    const auth = Auth.getInstance();
+    const user = auth.getUser();
     const chats = await chat.getChats(user.game_id);
 
-    console.log(chats.messages);
     if (chats.messages.length > 0) {
       // populate chat messages
       chats.messages.forEach(chat => {
         const messageElement = document.createElement('div');
-        messageElement.textContent = `${chat.User.username}: ${chat.message}`;
+        messageElement.innerHTML = `<strong style="color: #89CFF0">${chat.username}:</strong>: ${chat.message}`;
         chatMessages.appendChild(messageElement);
       });
     }
@@ -86,9 +87,8 @@
     });
 
     socketManager.getSocket()?.on('chatMessage', function(data) {
-      console.log("chatMessage: ", data);
       const messageElement = document.createElement('div');
-      messageElement.textContent = `${data.username}: ${data.message}`;
+      messageElement.innerHTML = `<strong style="color: #89CFF0">${data.username}:</strong> ${data.message}`;
       chatMessages.appendChild(messageElement);
       chatMessages.scrollTop = chatMessages.scrollHeight;
     });

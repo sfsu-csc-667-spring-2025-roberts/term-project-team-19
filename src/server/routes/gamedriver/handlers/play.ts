@@ -1,28 +1,26 @@
-import { GameCard, CardDefinition, Game, GameMove } from "../../../db/schema";
+import {
+  GameCard,
+  CardDefinition,
+  Game,
+  GameMove,
+  GamePlayer,
+} from "../../../db/schema";
 import { AuthenticatedRequestHandler, GameInstance } from "../../../types";
 import { AuthenticatedRequest } from "../../../types";
 import { Response, Request, RequestHandler } from "express";
 import {
+  handleActionCard,
+  handleNormalCard,
+  handleWildCard,
+  updateTurn,
+} from "./utils";
+import { GameCardInstance, LastCardInstance } from "../../../types/gamedriver";
+import {
+  GameMoveType,
   GameCardLocation,
   CardType,
   CardAction,
-  CardColor,
-  GameMoveType,
 } from "../../../enum/enums";
-import { Model } from "sequelize";
-
-interface GameCardInstance extends Model {
-  location: GameCardLocation;
-  owner_id: number;
-}
-
-interface LastCardInstance extends Model {
-  CardDefinition: {
-    color: CardColor;
-    value: number;
-    action: CardAction;
-  };
-}
 
 async function createGameMove(data: any) {
   // create game move
@@ -36,18 +34,6 @@ async function createGameMove(data: any) {
   return gameMove;
 }
 
-async function updateTurn(game: GameInstance, turn_direction: number) {
-  let new_turn = game.current_turn + turn_direction;
-  if (new_turn < 0) {
-    new_turn = game.player_count - 1;
-  } else if (new_turn >= game.player_count) {
-    new_turn = 1;
-  }
-  game.update({
-    current_turn: new_turn,
-  });
-}
-
 export const playCardHandler: AuthenticatedRequestHandler = async (
   req: AuthenticatedRequest,
   res: Response,
@@ -55,15 +41,20 @@ export const playCardHandler: AuthenticatedRequestHandler = async (
   const game_id = req.params.game_id;
   const user_id = req.session.user?.id;
 
-  const game = (await Game.findByPk(game_id)) as GameInstance;
+  const game = (await Game.findByPk(game_id, {
+    include: [
+      {
+        model: GamePlayer,
+        as: "gamePlayers",
+      },
+    ],
+  })) as GameInstance;
   if (!game) {
     res.status(404).json({ error: "Game not found" });
     return;
   }
 
-  console.log("Request body:", req.body);
   const body = req.body;
-  console.log("Body:", body);
   // get game card
   const gameCard = (await GameCard.findByPk(
     body.game_card_id,
@@ -79,7 +70,7 @@ export const playCardHandler: AuthenticatedRequestHandler = async (
       game_id: game_id,
       location: GameCardLocation.DISCARD_PILE,
     },
-    order: [["created_at", "DESC"]],
+    order: [["updatedAt", "DESC"]],
     include: [
       {
         model: CardDefinition,
@@ -102,46 +93,26 @@ export const playCardHandler: AuthenticatedRequestHandler = async (
 
   // handle normal cards
   if (body.type === CardType.NORMAL) {
-    if (body.color === null || body.action !== null || body.value === null) {
+    const success = await handleNormalCard(gameCard, lastCard, body);
+    if (!success) {
       res.status(400).json({ error: "Invalid normal card" });
       return;
     }
-
-    if (
-      lastCard &&
-      lastCard.CardDefinition.color !== body.color &&
-      lastCard.CardDefinition.value !== body.value
-    ) {
-      res.status(400).json({ error: "Invalid card" });
+  }
+  // handle wild cards
+  else if (body.type === CardType.WILD) {
+    const success = await handleWildCard(gameCard, body);
+    if (!success) {
+      res.status(400).json({ error: "Invalid wild card" });
       return;
     }
-  } else if (body.type === CardType.ACTION) {
-    if (body.action === null || body.value !== null) {
+  }
+  // handle action cards
+  else if (body.type === CardType.ACTION) {
+    const success = await handleActionCard(game, gameCard, lastCard, body);
+    if (!success) {
       res.status(400).json({ error: "Invalid action card" });
       return;
-    }
-    // card must match last card
-    if (
-      lastCard &&
-      lastCard.CardDefinition.color !== body.color &&
-      lastCard.CardDefinition.action !== body.action
-    ) {
-      res.status(400).json({ error: "Invalid card" });
-      return;
-    }
-
-    // update turn direction
-    if (body.action === CardAction.REVERSE) {
-      // update order -/+1
-      if (game.turn_direction === 1) {
-        game.update({
-          turn_direction: -1,
-        });
-      } else if (game.turn_direction === -1) {
-        game.update({
-          turn_direction: 1,
-        });
-      }
     }
   }
 
@@ -153,8 +124,10 @@ export const playCardHandler: AuthenticatedRequestHandler = async (
     location: GameCardLocation.DISCARD_PILE,
   });
 
+  console.log("Game card:", req.body);
+
   // update turn
-  await updateTurn(game, game.turn_direction);
+  await updateTurn(game, game.turn_direction, req.body);
 
   res.status(200).json({ message: "Card played" });
   return;

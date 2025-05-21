@@ -1,4 +1,10 @@
-import { GameCard, CardDefinition, Game, GamePlayer } from "../../../db/schema";
+import {
+  GameCard,
+  CardDefinition,
+  Game,
+  GamePlayer,
+  GameMove,
+} from "../../../db/schema";
 import {
   AuthenticatedRequestHandler,
   GameInstance,
@@ -25,6 +31,14 @@ interface CardDefinitionInstance extends Model {
 interface GamePlayerInstance extends Model {
   username: string;
   user_id: number;
+}
+
+interface GameMoveInstance extends Model {
+  game_id: number;
+  player_id: number;
+  card_id: number;
+  move_type: string;
+  color: string;
 }
 
 export const getUserCardsHandler: AuthenticatedRequestHandler = async (
@@ -67,6 +81,11 @@ export const getUserCardsHandler: AuthenticatedRequestHandler = async (
       },
     ],
   })) as GameCardInstance | null;
+
+  const lastMove = (await GameMove.findOne({
+    where: { game_id },
+    order: [["updated_at", "DESC"]],
+  })) as GameMoveInstance;
 
   if (!userCards) {
     res.status(400).json({ error: "User cards not found" });

@@ -10,6 +10,15 @@ import { GameStatus } from "../../../enum/enums";
 import { Op } from "sequelize";
 import { Chatlog, Game, User } from "../../../db/schema";
 import { io } from "server";
+import { Model } from "sequelize";
+
+interface ChatlogInstance extends Model {
+  message: string;
+  createdAt: Date;
+  User: {
+    username: string;
+  };
+}
 
 export const getMessagesHandler: AuthenticatedRequestHandler = async (
   req: AuthenticatedRequest,
@@ -53,7 +62,7 @@ export const getMessagesHandler: AuthenticatedRequestHandler = async (
     return;
   }
 
-  const messages = await Chatlog.findAll({
+  const messages = (await Chatlog.findAll({
     where: {
       game_id: gameId,
     },
@@ -63,7 +72,16 @@ export const getMessagesHandler: AuthenticatedRequestHandler = async (
         attributes: ["username"],
       },
     ],
-  });
+    order: [["createdAt", "ASC"]],
+  })) as ChatlogInstance[];
 
-  res.status(200).json({ messages });
+  console.log(messages);
+
+  const formattedMessages = messages.map((message) => ({
+    username: message.User.username,
+    message: message.message,
+    timestamp: message.createdAt,
+  }));
+
+  res.status(200).json({ messages: formattedMessages });
 };
