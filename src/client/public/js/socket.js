@@ -93,6 +93,27 @@ window.SocketManager = {
           this.socket.emit("drawCard", { gameId, username: user.username });
         },
 
+        endTurn: function (gameId) {
+          if (!this.socket || !gameId) return;
+          const user = auth.getUser();
+          console.log("turnOver: ", gameId, user.username);
+          this.socket.emit("turnOver", { gameId, username: user.username });
+        },
+
+        callUno: function (gameId) {
+          if (!this.socket || !gameId) return;
+          const user = auth.getUser();
+          console.log("callUno: ", gameId, user.username);
+          this.socket.emit("callUno", { gameId, username: user.username });
+        },
+
+        gameEnded: function (gameId) {
+          if (!this.socket || !gameId) return;
+          const user = auth.getUser();
+          console.log("gameEnded: ", gameId, user.username);
+          this.socket.emit("gameEnded", { gameId, username: user.username });
+        },
+
         getSocket: function () {
           return this.socket;
         },

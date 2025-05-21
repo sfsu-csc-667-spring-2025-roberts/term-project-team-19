@@ -121,5 +121,6 @@ export const getUserCardsHandler: AuthenticatedRequestHandler = async (
     user: formattedUserCards,
     discard: formattedDiscardCard,
     currentTurn: currentTurnPlayer,
+    status: game.status,
   });
 };

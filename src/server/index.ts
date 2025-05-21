@@ -100,7 +100,7 @@ try {
         username: string;
       }) => {
         console.log(`${username} played a ${card} card`);
-        io.to(`game_${gameId}`).emit("cardPlayed", { card, username });
+        // io.to(`game_${gameId}`).emit("cardPlayed", { card, username });
 
         // send game move chat log
         await Chatlog.create({
@@ -117,6 +117,13 @@ try {
     );
 
     socket.on(
+      "turnOver",
+      async ({ gameId, username }: { gameId: string; username: string }) => {
+        io.to(`game_${gameId}`).emit("nextTurn");
+      },
+    );
+
+    socket.on(
       "drawCard",
       async ({
         gameId,
@@ -126,7 +133,7 @@ try {
         card: any;
         username: string;
       }) => {
-        io.to(`game_${gameId}`).emit("cardDrawn", { username });
+        // io.to(`game_${gameId}`).emit("cardDrawn", { username });
 
         // send game move chat log
         await Chatlog.create({
@@ -145,6 +152,7 @@ try {
     socket.on(
       "currentTurn",
       async ({ game_id, user_id }: { game_id: string; user_id: number }) => {
+        console.log("currentTurn: ", game_id, user_id);
         const user = (await User.findByPk(user_id)) as UserInstance;
         // send game move chat log
         await Chatlog.create({
@@ -155,6 +163,42 @@ try {
         });
         io.to(`game_${game_id}`).emit("chatMessage", {
           message: `It's ${user.username.toUpperCase()}'s turn`,
+          username: "chatbot",
+        });
+      },
+    );
+
+    socket.on(
+      "callUno",
+      async ({ gameId, username }: { gameId: string; username: string }) => {
+        console.log("callUno: ", gameId, username);
+        // send game move chat log
+        await Chatlog.create({
+          game_id: parseInt(gameId),
+          user_id: 3,
+          message: `${username.toUpperCase()} called UNO`,
+          timestamp: Date.now(),
+        });
+        io.to(`game_${gameId}`).emit("chatMessage", {
+          message: `${username.toUpperCase()} called UNO`,
+          username: "chatbot",
+        });
+      },
+    );
+
+    socket.on(
+      "gameEnded",
+      async ({ gameId, username }: { gameId: string; username: string }) => {
+        console.log("gameEnded: ", gameId, username);
+        // send game move chat log
+        await Chatlog.create({
+          game_id: parseInt(gameId),
+          user_id: 3,
+          message: `${username.toUpperCase()} won the game`,
+          timestamp: Date.now(),
+        });
+        io.to(`game_${gameId}`).emit("chatMessage", {
+          message: `${username.toUpperCase()} won the game`,
           username: "chatbot",
         });
       },

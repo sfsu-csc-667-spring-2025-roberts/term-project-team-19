@@ -26,11 +26,6 @@ export const endGameHandler: AuthenticatedRequestHandler = async (
     return;
   }
 
-  if (user.game_id !== game_id) {
-    res.status(401).json({ error: "Unauthorized" });
-    return;
-  }
-
   const game = (await Game.findOne({
     where: {
       id: game_id,
@@ -66,9 +61,9 @@ export const endGameHandler: AuthenticatedRequestHandler = async (
     }
   }
 
-  user.game_id = 0;
   req.session.user = user;
   req.session.save();
 
   res.status(200).json({ message: "Game ended successfully" });
+  return;
 };

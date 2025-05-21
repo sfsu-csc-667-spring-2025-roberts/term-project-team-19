@@ -31,14 +31,14 @@ const createGameCards = async (game_id: number) => {
   const cardDefinitions =
     (await CardDefinition.findAll()) as CardDefinitionInstance[];
 
-  // remove last 4 wild cards from the deck
+  // remove last 4 wild cards from the deck, these are used for displaying the wild card popup
   cardDefinitions.pop();
   cardDefinitions.pop();
   cardDefinitions.pop();
   cardDefinitions.pop();
 
   // Create a deck with 3 of each card (standard UNO deck)
-  const deck = [...cardDefinitions, ...cardDefinitions, ...cardDefinitions];
+  const deck = [...cardDefinitions];
 
   // Shuffle the deck
   const shuffledDeck = shuffleArray(deck);

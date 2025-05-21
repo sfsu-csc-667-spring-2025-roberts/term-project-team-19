@@ -43,6 +43,7 @@ export const initializeCards = async () => {
       // Add two of each action card (Draw Two, Skip, Reverse)
       const actionCards = [
         { action: CardAction.DRAW_TWO },
+        { action: CardAction.DRAW_FOUR },
         { action: CardAction.SKIP },
         { action: CardAction.REVERSE },
       ];
@@ -97,7 +98,6 @@ export const initializeCards = async () => {
   }
 };
 
-// Only run this file directly
 if (require.main === module) {
   initializeCards()
     .then(() => {

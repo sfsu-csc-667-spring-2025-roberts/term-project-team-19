@@ -135,6 +135,7 @@
         const game_id = window.location.pathname.split('/')[2];
         const user = auth.getUser();
         const user_id = user.id;
+        console.log("game_id:", game_id);
 
         // Check if user is already authenticated
         auth.isAuthenticated().then(isAuth => {
@@ -146,48 +147,38 @@
         // Join the game room for chat
         socketManager.joinGame(game_id, user.username);
 
-        socketManager.getSocket()?.on('cardPlayed', async (data) => {
-            console.log("Card played:", data);
-            updateUI();
-            handleTurn();
+        socketManager.getSocket()?.on('nextTurn', async (data) => {
+            await updateUI();
+            await handleTurn();
         });
-
-        socketManager.getSocket()?.on('cardDrawn', async (data) => {
-            console.log("Card played:", data);
-            updateUI();
-            handleTurn();
-        });
-
-
 
         let topCard = null;
+        let res = null;
+        let gameData = null;
 
         async function updateUI() {
             try {
-                const gameData = await game.fetchUserCards(game_id, user_id);
-                const res = await gameData.json();
-                console.log("Fetching user cards...");
-                console.log("Game data:", res);
-
+                res = await game.fetchUserCards(game_id, user_id);
+                gameData = await res.json();
+                console.log("gameData:", gameData);
                 // Update player's hand
                 const playerHand = document.getElementById('playerHand');
                 playerHand.innerHTML = ''; // Clear existing cards
                 
                 // Update discard pile first to get the top card
                 const discardPile = document.getElementById('discardPile');
-                console.log("Discard pile element:", discardPile);
                 discardPile.innerHTML = ''; // Clear existing card
                 topCard = null;
-                if (res.discard) {
-                    topCard = res.discard;
-                    const discardCard = createCardElement(res.discard);
+                if (gameData.discard) {
+                    topCard = gameData.discard;
+                    const discardCard = createCardElement(gameData.discard);
                     discardPile.appendChild(discardCard);
                 }
 
                 // Add cards to player's hand with playable status
-                res.user.forEach(card => {
+                gameData.user.forEach(card => {
                     const cardElement = createCardElement(card);
-                    const isPlayable = isCardPlayable(card, topCard, res.currentTurn);
+                    const isPlayable = isCardPlayable(card, topCard, gameData.currentTurn);
                     cardElement.classList.add(isPlayable ? 'playable' : 'unplayable');
                     if (isPlayable) {
                         cardElement.addEventListener('click', () => handleCardClick(card));
@@ -205,16 +196,21 @@
                     const response = await gameplay.drawCard(game_id);
                     if (response.ok) {
                         socketManager.drawCard(game_id);
+                        endTurn(false);
                     }
                 });
                 playerHand.appendChild(drawButton);
 
                 // Update draw button visibility
-                if (res.currentTurn.user_id === user_id) {
-                    const hasPlayableCards = res.user.some(card => 
-                        isCardPlayable(card, topCard, res.currentTurn)
+                if (gameData.currentTurn.user_id === user_id) {
+                    const hasPlayableCards = gameData.user.some(card => 
+                        isCardPlayable(card, topCard, gameData.currentTurn)
                     );
-                    drawButton.style.display = hasPlayableCards ? 'none' : 'block';
+                    if (gameData.status === "finished") {
+                        drawButton.style.display = 'none';
+                    } else {
+                        drawButton.style.display = hasPlayableCards ? 'none' : 'block';
+                    }
                 }
             } catch (error) {
                 console.error("Error updating UI:", error);
@@ -222,24 +218,43 @@
         }
 
         async function handleTurn() {
-            const gameData = await game.fetchUserCards(game_id, user_id);
-            const res = await gameData.json();
-            const currentTurn = res.currentTurn;
-            const lastCardPlayed = res.discard;
+            const currentTurn = gameData.currentTurn;
+            const lastCardPlayed = gameData.discard;
+
+            if (gameData.status === "finished") {
+                return;
+            }
             
             if (currentTurn.user_id === user_id) {
                 socketManager.getSocket()?.emit('currentTurn', {
                     game_id: game_id,
-                    user_id: user_id,
+                    user_id: gameData.currentTurn.user_id,
                 });
             }
         }
-        
+
+        async function endTurn(cardPlayed = true) {
+            if (gameData.user.length - 1 === 1 && cardPlayed) {
+                console.log("Calling UNO:", game_id);
+                socketManager.callUno(game_id);
+            }
+            else if (gameData.user.length - 1 === 0 && cardPlayed) {
+                socketManager.gameEnded(game_id);
+                await game.endGame(game_id);
+            }
+
+            socketManager.endTurn(game_id);
+        }
 
         function isCardPlayable(card, topCard, currentTurn) {
             if (auth.getUser().id !== currentTurn.user_id) {
                 return false;
             }
+
+            if (gameData.status === "finished") {
+                return false;
+            }
+
             if (!topCard) return true; // If no top card, all cards are playable
             
             // Wild cards are always playable
@@ -265,12 +280,16 @@
                 if (response.ok) {
                     const cardString = card.color + " " + card.action;
                     socketManager.playCard(game_id, cardString);
+
+                    endTurn(true);
                 }
             } else {
                 const response = await gameplay.playCard(game_id, card, true ? card.value === topCard.value && card.color !== topCard.color : false);
                 if (response.ok) {
                     const cardString = card.color + " " + card.value;
                     socketManager.playCard(game_id, cardString);
+
+                    endTurn(true);
                 }
             }
         }
@@ -285,13 +304,14 @@
             colorOptions.forEach(option => {
                 option.onclick = async () => {
                     const selectedColor = option.dataset.color;
-                    console.log(`Selected color: ${selectedColor} for wild card:`, card);
                     
                     popup.style.display = 'none';
                     const response = await gameplay.playWildCard(game_id, card, selectedColor);
                     if (response.ok) {
                         const cardString = selectedColor + " " + card.type;
                         socketManager.playCard(game_id, cardString);
+
+                        endTurn(true);
                     }
                 };
             });
@@ -304,7 +324,6 @@
         });
 
         function createCardElement(card) {
-            console.log("Creating card element for:", card);
             const cardDiv = document.createElement('div');
             
             cardDiv.dataset.cardId = card.id;
@@ -326,7 +345,6 @@
                 imagePath += `${card.value}/${card.value}_${card.color}.svg`;
                 cardDiv.className = `card ${card.value}_${card.color}`;
             }
-            console.log("Card image path:", imagePath);
 
             img.src = imagePath;
             img.alt = `${card.color} ${card.value || card.action || 'wild'}`;

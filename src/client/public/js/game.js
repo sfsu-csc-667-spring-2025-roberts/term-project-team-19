@@ -155,6 +155,26 @@ window.Game = {
             return null;
           }
         },
+        endGame: async (gameId) => {
+          try {
+            const response = await fetch(
+              `http://localhost:3000/games/${gameId}/end`,
+              {
+                method: "POST",
+                headers: auth.getAuthHeaders(),
+                credentials: "include",
+              },
+            );
+            if (response.ok) {
+              return await response.json();
+            } else {
+              return await response.json();
+            }
+          } catch (error) {
+            console.error("Failed to end game:", error);
+            return null;
+          }
+        },
       };
     }
     return this.instance;
