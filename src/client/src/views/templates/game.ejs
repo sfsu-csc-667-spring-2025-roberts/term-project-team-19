@@ -26,6 +26,7 @@
         </div>
         <div id="playerHand" class="player-hand">
             <!-- Player's cards will be displayed here -->
+            <button id="drawCard" class="draw-button" style="display: none;">Draw</button>
         </div>
         <div id="gameControls">
             <button id="leaveGame">Leave Game</button>
@@ -101,6 +102,28 @@
             height: 100%;
             object-fit: contain;
         }
+
+        .draw-button {
+            width: 100px;
+            height: 150px;
+            margin: 10px;
+            background-color: #1e1e1e;
+            border: 2px solid #ff4400;
+            color: #ff4400;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.2em;
+            transition: transform 0.2s;
+            display: block;
+            position: relative;
+            z-index: 1;
+        }
+
+        .draw-button:hover {
+            transform: translateY(-10px);
+            background-color: #ff4400;
+            color: #1e1e1e;
+        }
     </style>
 
     <script>
@@ -165,6 +188,36 @@
                     }
                     playerHand.appendChild(cardElement);
                 });
+
+                // Create and add draw button
+                const drawButton = document.createElement('button');
+                drawButton.id = 'drawCard';
+                drawButton.className = 'draw-button';
+                drawButton.textContent = 'Draw';
+                drawButton.style.display = 'none';
+                drawButton.addEventListener('click', async () => {
+                    const response = await fetch(`/play/${game_id}/draw`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${auth.getToken()}`
+                        },
+                        body: JSON.stringify({ user_id })
+                    });
+                    
+                    if (response.ok) {
+                        updateUI();
+                    }
+                });
+                playerHand.appendChild(drawButton);
+
+                // Update draw button visibility
+                if (res.currentTurn.user_id === user_id) {
+                    const hasPlayableCards = res.user.some(card => 
+                        isCardPlayable(card, topCard, res.currentTurn)
+                    );
+                    drawButton.style.display = hasPlayableCards ? 'none' : 'block';
+                }
             } catch (error) {
                 console.error("Error updating UI:", error);
             }
@@ -175,49 +228,13 @@
             const res = await gameData.json();
             const currentTurn = res.currentTurn;
             const lastCardPlayed = res.discard;
+            
             if (currentTurn.user_id === user_id) {
                 socketManager.getSocket()?.emit('currentTurn', {
                     game_id: game_id,
                     user_id: user_id,
                 });
-
-                if (lastCardPlayed.type === 'action' && lastCardPlayed.action === 'skip') {
-                    // TODO: handle in server
-                    socketManager.getSocket()?.emit('skipTurn', {
-                        game_id: game_id,
-                        user_id: user_id,
-                    });
-                    return;
-                }
-
-                if (lastCardPlayed.type === 'action' && lastCardPlayed.action === 'reverse') {
-                    // TODO: handle in server
-                    socketManager.getSocket()?.emit('reverseTurn', {
-                        game_id: game_id,
-                        user_id: user_id,
-                    });
-                    return;
-                }
-
-                if (lastCardPlayed.type === 'action' && lastCardPlayed.action === 'draw_two') {
-                    // TODO: handle in server
-                    socketManager.getSocket()?.emit('drawTwo', {
-                        game_id: game_id,
-                        user_id: user_id,
-                    });
-                    return;
-                }
-
-                if (lastCardPlayed.type === 'action' && lastCardPlayed.action === 'draw_four') {
-                    // TODO: handle in server
-                    socketManager.getSocket()?.emit('drawFour', {
-                        game_id: game_id,
-                        user_id: user_id,
-                    });
-                    return;
-                }
             }
-
         }
         
 
@@ -225,9 +242,6 @@
             if (auth.getUser().id !== currentTurn.user_id) {
                 return false;
             }
-
-            console.log("topCard:", topCard);
-            console.log("card:", card);
             if (!topCard) return true; // If no top card, all cards are playable
             
             // Wild cards are always playable
