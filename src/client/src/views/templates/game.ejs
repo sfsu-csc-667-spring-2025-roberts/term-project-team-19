@@ -152,6 +152,12 @@
             handleTurn();
         });
 
+        socketManager.getSocket()?.on('cardDrawn', async (data) => {
+            console.log("Card played:", data);
+            updateUI();
+            handleTurn();
+        });
+
 
 
         let topCard = null;
@@ -196,17 +202,9 @@
                 drawButton.textContent = 'Draw';
                 drawButton.style.display = 'none';
                 drawButton.addEventListener('click', async () => {
-                    const response = await fetch(`/play/${game_id}/draw`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${auth.getToken()}`
-                        },
-                        body: JSON.stringify({ user_id })
-                    });
-                    
+                    const response = await gameplay.drawCard(game_id);
                     if (response.ok) {
-                        updateUI();
+                        socketManager.drawCard(game_id);
                     }
                 });
                 playerHand.appendChild(drawButton);

@@ -33,6 +33,27 @@ window.Gameplay = {
           return response;
         },
 
+        async drawCard(game_id) {
+          const user = this.auth.getUser();
+          const req_body = {
+            game_id: game_id,
+            user_id: user.id,
+          };
+          const response = await fetch(
+            `http://localhost:3000/play/${game_id}/draw`,
+            {
+              method: "POST",
+              headers: {
+                ...this.auth.getAuthHeaders(),
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(req_body),
+              credentials: "include",
+            },
+          );
+          return response;
+        },
+
         async playWildCard(game_id, card, color, change_color = true) {
           const user = this.auth.getUser();
           const req_body = {

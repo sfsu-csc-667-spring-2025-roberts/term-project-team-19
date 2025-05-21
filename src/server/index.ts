@@ -111,6 +111,32 @@ try {
     );
 
     socket.on(
+      "drawCard",
+      async ({
+        gameId,
+        username,
+      }: {
+        gameId: string;
+        card: any;
+        username: string;
+      }) => {
+        io.to(`game_${gameId}`).emit("cardDrawn", { username });
+
+        // send game move chat log
+        await Chatlog.create({
+          game_id: gameId,
+          user_id: 3,
+          message: `${username} drew a card`,
+          timestamp: Date.now(),
+        });
+        io.to(`game_${gameId}`).emit("chatMessage", {
+          message: `${username.toUpperCase()} drew a card`,
+          username: "chatbot",
+        });
+      },
+    );
+
+    socket.on(
       "currentTurn",
       async ({ game_id, user_id }: { game_id: string; user_id: number }) => {
         const user = (await User.findByPk(user_id)) as UserInstance;

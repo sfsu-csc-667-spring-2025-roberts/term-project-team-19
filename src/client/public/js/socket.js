@@ -78,6 +78,13 @@ window.SocketManager = {
           });
         },
 
+        drawCard: function (gameId) {
+          if (!this.socket || !gameId) return;
+          const user = auth.getUser();
+          console.log("drawCard: ", gameId, user.username);
+          this.socket.emit("drawCard", { gameId, username: user.username });
+        },
+
         getSocket: function () {
           return this.socket;
         },

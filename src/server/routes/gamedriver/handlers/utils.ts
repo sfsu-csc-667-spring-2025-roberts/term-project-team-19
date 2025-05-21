@@ -131,7 +131,7 @@ async function handleReverse(game: GameInstance, turn_direction: number) {
   }
 }
 
-async function handleDraw(
+export async function handleDraw(
   game: GameInstance,
   player: GamePlayerInstance,
   num_cards: number,

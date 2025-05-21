@@ -56,8 +56,6 @@
     const chatMessages = document.getElementById('chat-messages');
     const socketManager = SocketManager.getInstance();
     const chat = Chat.getInstance();
-    const auth = Auth.getInstance();
-    const user = auth.getUser();
     const chats = await chat.getChats(user.game_id);
 
     if (chats.messages.length > 0) {

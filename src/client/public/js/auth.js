@@ -90,8 +90,9 @@ window.Auth = {
             console.error("Token verification failed:", error);
             return false;
           });
+
           if (response.ok) {
-            console.log("Token is valid");
+            const data = await response.json();
             return true;
           } else {
             console.log("Token is invalid");
