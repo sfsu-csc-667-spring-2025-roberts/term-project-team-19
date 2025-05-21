@@ -175,6 +175,48 @@ window.Game = {
             return null;
           }
         },
+        gameStarted: async (gameId) => {
+          try {
+            console.log("fetchGame: ", gameId);
+            console.log("auth.getAuthHeaders(): ", auth.getAuthHeaders());
+            const res = await fetch(`http://localhost:3000/games/${gameId}`, {
+              method: "GET",
+              headers: auth.getAuthHeaders(),
+              credentials: "include",
+            });
+
+            if (res.ok) {
+              gameData = await res.json();
+              return gameData.status === "playing";
+            } else {
+              return false;
+            }
+          } catch (error) {
+            console.error("Failed to fetch game:", error);
+            return null;
+          }
+        },
+        gameFinished: async (gameId) => {
+          try {
+            console.log("fetchGame: ", gameId);
+            console.log("auth.getAuthHeaders(): ", auth.getAuthHeaders());
+            const res = await fetch(`http://localhost:3000/games/${gameId}`, {
+              method: "GET",
+              headers: auth.getAuthHeaders(),
+              credentials: "include",
+            });
+
+            if (res.ok) {
+              gameData = await res.json();
+              return gameData.status === "finished";
+            } else {
+              return false;
+            }
+          } catch (error) {
+            console.error("Failed to fetch game:", error);
+            return null;
+          }
+        },
       };
     }
     return this.instance;

@@ -220,6 +220,20 @@
         }
       });
 
+      game.gameStarted(gameId).then(started => {
+        if (started) {
+          window.location.href = `/games/${gameId}/play`;
+        }
+      });
+
+      game.gameFinished(gameId).then(finished => {
+        if (finished) {
+            alert("Game finished");
+            window.location.href = "/";
+        }
+        
+      });
+      
       socketManager.getSocket()?.on("playerJoined", async (data) => {
         updateGameUI();
       });

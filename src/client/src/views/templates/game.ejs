@@ -144,6 +144,26 @@
             }
         });
 
+        auth.userInGame(game_id).then(inGame => {
+            if (!inGame) {
+            alert("You are not in this game");
+            window.location.href = "/";
+            }
+        });
+
+        game.gameStarted(game_id).then(started => {
+            if (!started) {
+                window.location.href = `/games/${game_id}/lobby`;
+            }
+        });
+
+        game.gameFinished(game_id).then(finished => {
+            if (finished) {
+                alert("Game finished");
+                window.location.href = "/";
+            }
+        });
+
         // Join the game room for chat
         socketManager.joinGame(game_id, user.username);
 
