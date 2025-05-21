@@ -7,6 +7,7 @@ window.Chat = {
         socketManager: SocketManager.getInstance(),
 
         send: async function (message, gameId) {
+          console.log("getChats: ", await this.auth.isAuthenticated());
           let url;
           if (!gameId) {
             console.log("send: no gameId");
@@ -46,6 +47,7 @@ window.Chat = {
         },
 
         getChats: async function (gameId) {
+          console.log("getChats: ", await this.auth.isAuthenticated());
           let url;
           if (!gameId) {
             console.log("getChats: no gameId");
@@ -57,7 +59,7 @@ window.Chat = {
           try {
             const response = await fetch(url, {
               method: "GET",
-              headers: Auth.getInstance().getAuthHeaders(),
+              headers: this.auth.getAuthHeaders(),
               credentials: "include",
             });
             if (response.ok) {
