@@ -221,12 +221,7 @@
       });
 
       socketManager.getSocket()?.on("playerJoined", async (data) => {
-        console.log("Player joined: ", user.username);
-        const playerJoined = document.getElementById('player-joined');
-        if (playerJoined) {
-          console.log("Player joined: ", data);
-          playerJoined.textContent = `Player ${data} joined the game`;
-        }
+        updateGameUI();
       });
 
       socketManager.getSocket()?.on("gameStarted", async (data) => {
@@ -245,6 +240,7 @@
 
         // Update players list
         const playersSection = document.getElementById('players-section');
+        playersSection.innerHTML = "";
         playersSection.innerHTML = gameData.players.map(player => `
           <div class="list-item ${player.id === gameData.hostId ? 'host' : ''}">
             <div class="game-info">
