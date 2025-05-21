@@ -233,7 +233,7 @@
         console.log("Game started: ", data);
         window.location.href = `/games/${gameId}/play`;
       });
-
+      
       socketManager.joinGame(gameId, user.username);
       
       updateGameUI();

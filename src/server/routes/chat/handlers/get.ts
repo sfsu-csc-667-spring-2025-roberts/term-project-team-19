@@ -8,11 +8,19 @@ import { ChatMessage } from "server/types";
 import { AuthenticatedRequest } from "server/types";
 import { GameStatus } from "../../../enum/enums";
 import { Op } from "sequelize";
-import { Chatlog, Game, User } from "../../../db/schema";
+import { Chatlog, ChatlogGlobal, Game, User } from "../../../db/schema";
 import { io } from "server";
 import { Model } from "sequelize";
 
 interface ChatlogInstance extends Model {
+  message: string;
+  createdAt: Date;
+  User: {
+    username: string;
+  };
+}
+
+interface ChatlogGlobalInstance extends Model {
   message: string;
   createdAt: Date;
   User: {
@@ -31,9 +39,13 @@ export const getMessagesHandler: AuthenticatedRequestHandler = async (
 
   const user = req.session.user as SessionUser;
   if (!user) {
+    console.log("no user");
+    console.log(req.session);
     res.status(401).json({ error: "Unauthorized" });
     return;
   }
+
+  let messages: ChatlogInstance[] = [];
 
   const game = (await Game.findByPk(gameId)) as GameInstance;
 
@@ -62,7 +74,7 @@ export const getMessagesHandler: AuthenticatedRequestHandler = async (
     return;
   }
 
-  const messages = (await Chatlog.findAll({
+  messages = (await Chatlog.findAll({
     where: {
       game_id: gameId,
     },
@@ -76,6 +88,36 @@ export const getMessagesHandler: AuthenticatedRequestHandler = async (
   })) as ChatlogInstance[];
 
   console.log(messages);
+
+  const formattedMessages = messages.map((message) => ({
+    username: message.User.username,
+    message: message.message,
+    timestamp: message.createdAt,
+  }));
+
+  res.status(200).json({ messages: formattedMessages });
+};
+
+export const getMessagesHandlerGlobal: AuthenticatedRequestHandler = async (
+  req: AuthenticatedRequest,
+  res: Response,
+) => {
+  console.log("getMessagesHandlerGlobal");
+  const user = req.session.user as SessionUser;
+  if (!user) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+
+  const messages = (await ChatlogGlobal.findAll({
+    include: [
+      {
+        model: User,
+        attributes: ["username"],
+      },
+    ],
+    order: [["createdAt", "ASC"]],
+  })) as ChatlogGlobalInstance[];
 
   const formattedMessages = messages.map((message) => ({
     username: message.User.username,

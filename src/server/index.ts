@@ -79,7 +79,13 @@ try {
     console.log("A user connected:", socket.id);
 
     socket.on("joinGame", (gameId: string) => {
+      console.log("joinGame");
       socket.join(`game_${gameId}`);
+    });
+
+    socket.on("joinLanding", () => {
+      console.log("joinLanding");
+      socket.join("landing");
     });
 
     socket.on(
@@ -165,8 +171,11 @@ try {
         message: string;
         username: string;
       }) => {
-        console.log("SendMessage: ", message, username, game_id);
-        io.to(`game_${game_id}`).emit("chatMessage", { message, username });
+        if (game_id) {
+          io.to(`game_${game_id}`).emit("chatMessage", { message, username });
+        } else {
+          io.to("landing").emit("chatMessage", { message, username });
+        }
       },
     );
 

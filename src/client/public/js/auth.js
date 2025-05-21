@@ -93,6 +93,7 @@ window.Auth = {
 
           if (response.ok) {
             const data = await response.json();
+            auth.setAuthData(data);
             return true;
           } else {
             console.log("Token is invalid");

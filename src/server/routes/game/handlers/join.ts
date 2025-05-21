@@ -19,11 +19,19 @@ export const joinGameHandler: AuthenticatedRequestHandler = async (
     res.status(400).json({ error: "Game ID is required" });
     return;
   }
+  const user = req.session.user as SessionUser;
+  console.log("user", user);
 
   const game_id = parseInt(req.params.game_id);
 
-  const user = req.session.user as SessionUser;
-  console.log("user", user);
+  if (game_id === 0) {
+    req.session.user = user;
+    req.session.user.game_id = 0;
+    req.session.save();
+    res.status(200).json({ game_id: 0, user });
+    return;
+  }
+
   let db_user = await User.findByPk(user.id);
 
   if (!user) {

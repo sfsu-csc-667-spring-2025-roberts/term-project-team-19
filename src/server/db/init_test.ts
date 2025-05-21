@@ -96,6 +96,7 @@ export async function initializeDatabase() {
     await sequelize.query('DROP TABLE IF EXISTS "Games" CASCADE;');
     await sequelize.query('DROP TABLE IF EXISTS "Users" CASCADE;');
     await sequelize.query('DROP TABLE IF EXISTS "Chatlogs" CASCADE;');
+    await sequelize.query('DROP TABLE IF EXISTS "ChatlogGlobals" CASCADE;');
     await sequelize.query('DROP TABLE IF EXISTS "Friendships" CASCADE;');
     await sequelize.query('DROP TABLE IF EXISTS "CardDefinitions" CASCADE;');
     await sequelize.query('DROP TABLE IF EXISTS "GameCards" CASCADE;');

@@ -65,6 +65,8 @@ const signinHandler: RequestHandler = async (req, res) => {
       token: token,
     };
 
+    req.session.save();
+
     // Return success response
     res.status(200).json({
       message: "Sign in successful",

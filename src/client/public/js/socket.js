@@ -40,6 +40,14 @@ window.SocketManager = {
           });
         },
 
+        joinLanding: function () {
+          if (!this.socket) {
+            console.log("No socket connection");
+            return;
+          }
+          this.socket.emit("joinLanding");
+        },
+
         startGame: function (gameId) {
           if (!this.socket) {
             console.log("No socket connection");
@@ -52,7 +60,7 @@ window.SocketManager = {
         },
 
         sendMessage: function (message, username, game_id) {
-          if (!this.socket || !game_id) {
+          if (!this.socket) {
             console.log("No socket connection or game_id");
             return;
           }

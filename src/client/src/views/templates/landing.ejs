@@ -44,6 +44,7 @@
                         </div>
                     <% } %>
                 </div>
+                <%- include('shared/global_chat') %>
             </div>
         </main>
 
@@ -72,6 +73,8 @@
     <!-- Main lobby script -->
     <script type="module">
         const auth = Auth.getInstance();
+        const game = Game.getInstance();
+
         auth.isAuthenticated().then(isAuth => {
             if (!isAuth) {
                 console.log("Not authenticated");
@@ -79,7 +82,9 @@
             }
         });
         const user = auth.getUser();
-        const game = Game.getInstance();
+        const socketManager = SocketManager.getInstance();
+
+        socketManager.joinLanding();
 
         // Update welcome text with user's username
         const welcomeSpan = document.getElementById('welcome-text');

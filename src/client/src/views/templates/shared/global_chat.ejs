@@ -58,24 +58,25 @@
     const chat = Chat.getInstance();
     const auth = Auth.getInstance();
     const user = auth.getUser();
-    const chats = await chat.getChats(user.game_id);
-    let game_id = user.game_id;
-
-    if (chats.messages.length > 0) {
-      // populate chat messages
-      chats.messages.forEach(chat => {
-        const messageElement = document.createElement('div');
-        messageElement.innerHTML = `<strong style="color: #89CFF0">${chat.username}:</strong>: ${chat.message}`;
-        chatMessages.appendChild(messageElement);
-      });
-    }
+    const chats = await chat.getChats(null);
+    console.log("chats", chats);
+    if (chats.messages) {
+      if (chats.messages.length > 0) {
+        // populate chat messages
+        chats.messages.forEach(chat => {
+          const messageElement = document.createElement('div');
+          messageElement.innerHTML = `<strong style="color: #89CFF0">${chat.username}:</strong>: ${chat.message}`;
+          chatMessages.appendChild(messageElement);
+        });
+      }
+  } 
 
 
 
     function sendMessage() {
       const message = chatInput.value.trim();
       if (message) {
-        chat.send(message, 0);
+        chat.send(message, null);
       }
       chatInput.value = '';
     }
@@ -88,6 +89,7 @@
     });
 
     socketManager.getSocket()?.on('chatMessage', function(data) {
+      console.log("chatMessage", data);
       const messageElement = document.createElement('div');
       messageElement.innerHTML = `<strong style="color: #89CFF0">${data.username}:</strong> ${data.message}`;
       chatMessages.appendChild(messageElement);

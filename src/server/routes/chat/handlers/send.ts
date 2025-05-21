@@ -8,7 +8,7 @@ import { ChatMessage } from "server/types";
 import { AuthenticatedRequest } from "server/types";
 import { GameStatus } from "../../../enum/enums";
 import { Op } from "sequelize";
-import { Chatlog, Game } from "../../../db/schema";
+import { Chatlog, Game, ChatlogGlobal } from "../../../db/schema";
 import { io } from "server";
 
 export const sendMessageHandler: AuthenticatedRequestHandler = async (
@@ -57,6 +57,34 @@ export const sendMessageHandler: AuthenticatedRequestHandler = async (
 
   await Chatlog.create({
     game_id: game.id,
+    user_id: user.id,
+    message: message,
+    timestamp: Date.now(),
+  });
+
+  const broadcastMessage: ChatMessage = {
+    message,
+    sender: user.username,
+    timestamp: Date.now(),
+  };
+  console.log({ broadcastMessage });
+
+  res.status(200).json({ success: true, message: broadcastMessage });
+};
+
+export const sendMessageHandlerGlobal: AuthenticatedRequestHandler = async (
+  req: AuthenticatedRequest,
+  res: Response,
+) => {
+  console.log("sendMessageHandlerGlobal");
+  const user = req.session.user as SessionUser;
+  if (!user) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  const { message } = req.body;
+
+  await ChatlogGlobal.create({
     user_id: user.id,
     message: message,
     timestamp: Date.now(),

@@ -56,7 +56,8 @@
     const chatMessages = document.getElementById('chat-messages');
     const socketManager = SocketManager.getInstance();
     const chat = Chat.getInstance();
-    const chats = await chat.getChats(user.game_id);
+    const gameId = parseInt(window.location.pathname.split('/')[2]);
+    const chats = await chat.getChats(gameId);
 
     if (chats.messages.length > 0) {
       // populate chat messages
@@ -72,7 +73,7 @@
     function sendMessage() {
       const message = chatInput.value.trim();
       if (message) {
-        chat.send(message, user.game_id);
+        chat.send(message, gameId);
       }
       chatInput.value = '';
     }

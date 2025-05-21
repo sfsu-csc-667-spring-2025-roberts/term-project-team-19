@@ -42,6 +42,14 @@ authRouter.post("/check", (req, res) => {
     } else {
       if (decoded.iat && decoded.exp && decoded.iat < decoded.exp) {
         console.log("Authenticated", decoded);
+        req.session.user = {
+          id: decoded.id,
+          username: decoded.username,
+          email: decoded.email,
+          game_id: decoded.game_id,
+          token: token,
+        };
+        req.session.save();
         res.status(200).json({
           message: "Authenticated",
           user: req.session.user,

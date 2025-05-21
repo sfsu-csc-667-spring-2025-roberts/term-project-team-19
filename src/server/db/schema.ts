@@ -163,6 +163,29 @@ const Chatlog = sequelize.define("Chatlog", {
 Chatlog.belongsTo(User, { foreignKey: "user_id" });
 Chatlog.belongsTo(Game, { foreignKey: "game_id" });
 
+const ChatlogGlobal = sequelize.define("ChatlogGlobal", {
+  id: {
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
+    primaryKey: true,
+  },
+  user_id: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+  message: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  created_at: {
+    type: DataTypes.DATE,
+    allowNull: false,
+    defaultValue: DataTypes.NOW,
+  },
+});
+
+ChatlogGlobal.belongsTo(User, { foreignKey: "user_id" });
+
 const Friendship = sequelize.define("Friendship", {
   id: {
     type: DataTypes.INTEGER,
@@ -351,4 +374,5 @@ export {
   CardDefinition,
   GameCard,
   GameMove,
+  ChatlogGlobal,
 };
