@@ -140,3 +140,24 @@ export async function getGameHandler(req: Request, res: Response) {
     res.status(500).json({ error: "Failed to fetch game" });
   }
 }
+
+export async function getMyGames(req: Request, res: Response) {
+  const { user_id } = req.body;
+  try {
+    const games = (await Game.findAll({
+      include: [
+        {
+          model: GamePlayer,
+          where: { user_id: user_id },
+          attributes: [],
+          as: "gamePlayers",
+        },
+      ],
+    })) as GameInstance[];
+    console.log(games);
+    res.json(games);
+  } catch (error) {
+    console.error("Error fetching games:", error);
+    res.status(500).json({ error: "Failed to fetch games" });
+  }
+}

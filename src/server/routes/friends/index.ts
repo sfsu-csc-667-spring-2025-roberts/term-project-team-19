@@ -6,7 +6,9 @@ import {
   createFriendship,
   deleteFriendship,
 } from "./createFriendship";
+import { getFriendship } from "./getFriendship";
 
+router.get("/get", getFriendship);
 router.post("/create", createFriendship);
 router.post("/accept", acceptFriendship);
 router.post("/delete", deleteFriendship);
