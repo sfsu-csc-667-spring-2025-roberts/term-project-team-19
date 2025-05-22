@@ -143,7 +143,7 @@ export async function getGameHandler(req: Request, res: Response) {
 }
 
 export async function getMyGames(req: Request, res: Response) {
-  const user_id = req.session.user?.id || 2;
+  const user_id = req.params.user_id || 0;
   console.log("Trying to get my games\nuser_id:", user_id);
   try {
     const games = (await Game.findAll({

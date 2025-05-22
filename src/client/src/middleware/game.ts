@@ -89,6 +89,7 @@ export class GameManager {
   public async getMyGames(): Promise<GameLobbyItem[]> {
     console.log("In client/src/middleware/game.ts");
     console.log("Trying to getMyGames\nheaders: ", this.getAuthHeaders());
+    console.log("game.ts line 92: user:", this.auth.getUser());
     try {
       const response = await fetch("http://localhost:3000/games/mygames", {
         credentials: "include",

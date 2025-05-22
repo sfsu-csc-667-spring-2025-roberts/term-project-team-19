@@ -15,13 +15,11 @@ export class LandingView extends BaseView {
 
   protected async getData(): Promise<Record<string, any>> {
     const games = await this.gameManager.fetchGames();
-    const mygames = await this.gameManager.getMyGames();
 
     return {
       title: "Landing",
       styles: ["/styles.css"],
       games: games,
-      mygames: mygames,
     };
   }
 }

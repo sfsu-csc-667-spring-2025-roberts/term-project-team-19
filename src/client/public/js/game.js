@@ -139,28 +139,51 @@ window.Game = {
             return null;
           }
         },
-        getMyGames: async () => {
+        getMyGames: async (user_id) => {
           console.log("In client/public/js/game.js");
           console.log("Trying to getMyGames");
+          console.log("In client/src/middleware/game.ts");
           try {
             const response = await fetch(
-              "http://localhost:3000/games/mygames",
+              `http://localhost:3000/games/mygames/${user_id}`,
               {
-                method: "GET",
-                headers: auth.getAuthHeaders(),
                 credentials: "include",
+                method: "GET",
               },
             );
             console.log("Response:", response);
             if (response.ok) {
-              return await response.json();
+              const mygames = await response.json();
+              console.log("mygames", mygames);
+              this.mygames = mygames;
+              return mygames;
             } else {
-              return await response.json();
+              console.log("Response not ok", response);
             }
+            return [];
           } catch (error) {
             console.error("Failed to getMyGames:", error);
-            return null;
+            return [];
           }
+          // try {
+          //   const response = await fetch(
+          //     `http://localhost:3000/games/mygames/user_id?${user_id}`,
+          //     {
+          //       method: "GET",
+          //       headers: auth.getAuthHeaders(),
+          //       credentials: "include",
+          //     },
+          //   );
+          //   console.log("Response:", response);
+          //   if (response.ok) {
+          //     return await response.json();
+          //   } else {
+          //     return await response.json();
+          //   }
+          // } catch (error) {
+          //   console.error("Failed to getMyGames:", error);
+          //   return null;
+          // }
         },
         fetchUserCards: async (game_id, user_id) => {
           try {

@@ -50,23 +50,6 @@
             <div class="lobby-container">
                 <h2 class="lobby-title">My Games</h2>
                 <div class="games-list" id="my-games-list">
-                    <% console.log(locals.mygames); %>
-                    <% if(locals.mygames && mygames.length > 0) { %>
-                        <% mygames.forEach(function(mygames) { %>
-                        <div class="game-card" data-game-id="<%= mygames.id %>">
-                            <div class="game-info">
-                                <h3><%=mygames.hostUsername %>'s Game</h3>
-                                <p>Status: <%= mygames.status%></p>
-                            </div>
-                            <div class="game-actions">
-                                <button class="rejoin-game-button" data-game-id="<%=mygames.id%>">Rejoin Game</button>
-                            </div>
-                        <% }); %>
-                        <% } else{ %>
-                            <div class="game-card">
-                                <p>No games available. Join One!</p>
-                            </div>
-                        <% } %>
                 </div>
 
             </div>
@@ -138,20 +121,52 @@
             });
         });
 
-        // Rejoin game button click
-        document.addEventListener('DOMContentLoaded', () => {
-            document.querySelectorAll('.rejoin-game-button').forEach(button => {
-                const gameId = button.dataset.gameId;
-                console.log("Rejoin Game Button:", button);
-                if(gameId){
-                    button.onclick = async () => {
-                        window.location.href= `/games/${gameId}/lobby`;
-                    }
-                }else{
-                    console.error("No gameId:", gameId);
+        // Load and fill the user's games
+        document.addEventListener("DOMContentLoaded", async () => {
+            console.log("TRYING TO CALL GETMYGAMES")
+            const user_id = user.id;
+            const gameList = document.getElementById("my-games-list");
+            try {
+                console.log("IN TRY CATCH");
+                const mygames = await window.Game.getInstance().getMyGames(user_id);
+                console.log("landing.ejs line 147: \ntrying to get my games:", mygames);
+                console.log("mygames:", mygames, "mygames.length:", mygames.length, "mygames && mygames.length", mygames && mygames.length);
+                if(!mygames || !(mygames.length > 0)){
+                    gameList.innerHTML = `
+                    <div class="game-card">
+                        <p>No games available. Join One!</p>
+                    </div>
+                    `;
+                    return;
                 }
-            })
-        });
+                mygames.forEach(game => {
+                    const gameCard = document.createElement("div");
+                    gameCard.className="game-card";
+                    gameCard.dataset.gameId = game.id;
+
+                    gameCard.innerHTML = `
+                    <div class="game-info">
+                        <h3>${game.hostUsername}'s Game</h3>
+                        <p>Status: ${game.status}</p>
+                    </div>
+                    <div class="game-actions">
+                    </div>
+                    `;
+                    const button = document.createElement("button");
+                    button.className="rejoin-game-button";
+                    button.dataset.gameId = game.id;
+                    button.textContent = "Rejoin Game";
+                    button.onclick = async () => {
+                        console.log("Rejoin button clicked");
+                        window.location.href = `/games/${game.id}/lobby`;
+                    }
+                    gameCard.querySelector(".game-actions").appendChild(button);
+                    gameList.appendChild(gameCard);
+                })
+            } catch (error) {
+             console.error(error);   
+            }
+        })
 
         // create game button click handler
         document.addEventListener('DOMContentLoaded', () => {

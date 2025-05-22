@@ -9,7 +9,7 @@ import { requireAuth } from "../../middleware/auth";
 const gameRouter = Router();
 const router = Router();
 
-gameRouter.get("/mygames", getMyGames);
+gameRouter.get("/mygames/:user_id", getMyGames);
 gameRouter.post("/create", requireAuth, createGameHandler);
 gameRouter.post("/:game_id/join", requireAuth, joinGameHandler);
 gameRouter.post("/:game_id/leave", requireAuth, leaveGameHandler);
