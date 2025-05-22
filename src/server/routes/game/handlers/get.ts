@@ -3,6 +3,7 @@ import { Game, User, GamePlayer } from "../../../db/schema";
 import { GameStatus } from "../../../enum/enums";
 import { Op } from "sequelize";
 import { Model } from "sequelize";
+import { AuthenticatedRequestHandler } from "server/types";
 
 interface GameInstance extends Model {
   id: number;
@@ -142,7 +143,8 @@ export async function getGameHandler(req: Request, res: Response) {
 }
 
 export async function getMyGames(req: Request, res: Response) {
-  const { user_id } = req.body;
+  const user_id = req.session.user?.id || 2;
+  console.log("Trying to get my games\nuser_id:", user_id);
   try {
     const games = (await Game.findAll({
       include: [
@@ -152,10 +154,36 @@ export async function getMyGames(req: Request, res: Response) {
           attributes: [],
           as: "gamePlayers",
         },
+        {
+          model: User,
+          as: "host",
+          attributes: ["id", "username"],
+        },
+        {
+          model: GamePlayer,
+          as: "gamePlayers",
+          include: [
+            {
+              model: User,
+              attributes: ["id", "username"],
+              as: "user",
+            },
+          ],
+        },
       ],
     })) as GameInstance[];
     console.log(games);
-    res.json(games);
+
+    // Transform the data to match the client's expected format
+    const formattedGames = games.map((game) => ({
+      id: game.id,
+      hostUsername: game.host.username,
+      status: game.status,
+      createdAt: game.created_at,
+    }));
+
+    console.log("formattedGames: ", formattedGames);
+    res.json(formattedGames);
   } catch (error) {
     console.error("Error fetching games:", error);
     res.status(500).json({ error: "Failed to fetch games" });

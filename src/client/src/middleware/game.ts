@@ -1,4 +1,4 @@
-import { GameStatus } from "../types/game.js";
+import { Game, GameStatus } from "../types/game.js";
 import { Auth } from "./auth";
 
 export interface GameLobbyItem {
@@ -12,6 +12,7 @@ export interface GameLobbyItem {
 export class GameManager {
   private static instance: GameManager;
   private games: GameLobbyItem[] = [];
+  private mygames: GameLobbyItem[] = [];
   private gameListeners: ((games: GameLobbyItem[]) => void)[] = [];
   private auth: Auth;
 
@@ -81,6 +82,32 @@ export class GameManager {
       return [];
     } catch (error) {
       console.error("Failed to fetch games:", error);
+      return [];
+    }
+  }
+
+  public async getMyGames(): Promise<GameLobbyItem[]> {
+    console.log("In client/src/middleware/game.ts");
+    console.log("Trying to getMyGames\nheaders: ", this.getAuthHeaders());
+    try {
+      const response = await fetch("http://localhost:3000/games/mygames", {
+        credentials: "include",
+        method: "GET",
+        headers: this.getAuthHeaders(),
+      });
+      console.log("Response:", response);
+      if (response.ok) {
+        const mygames = await response.json();
+        console.log("mygames", mygames);
+        this.mygames = mygames;
+        this.notifyListeners();
+        return mygames;
+      } else {
+        console.log("Response not ok", response);
+      }
+      return [];
+    } catch (error) {
+      console.error("Failed to getMyGames:", error);
       return [];
     }
   }

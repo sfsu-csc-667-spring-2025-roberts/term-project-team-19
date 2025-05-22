@@ -21,6 +21,7 @@
                 <h2 class="lobby-title">Game Lobby</h2>
                 <button class="create-game-button" id="create-game-button">Create New Game</button>
                 <div class="games-list" id="games-list">
+                    <% console.log(locals.mygames) %>
                     <% if (locals.games && games.length > 0) { %>
                         <% games.forEach(function(game) { %>
                             <div class="game-card" data-game-id="<%= game.id %>">
@@ -45,6 +46,29 @@
                     <% } %>
                 </div>
                 <%- include('shared/global_chat') %>
+            </div>
+            <div class="lobby-container">
+                <h2 class="lobby-title">My Games</h2>
+                <div class="games-list" id="my-games-list">
+                    <% console.log(locals.mygames); %>
+                    <% if(locals.mygames && mygames.length > 0) { %>
+                        <% mygames.forEach(function(mygames) { %>
+                        <div class="game-card" data-game-id="<%= mygames.id %>">
+                            <div class="game-info">
+                                <h3><%=mygames.hostUsername %>'s Game</h3>
+                                <p>Status: <%= mygames.status%></p>
+                            </div>
+                            <div class="game-actions">
+                                <button class="join-game-button" data-game-id="<%mygames.id%>">Join Game</button>
+                            </div>
+                        <% }); %>
+                        <% } else{ %>
+                            <div class="game-card">
+                                <p>No games available. Join One!</p>
+                            </div>
+                        <% } %>
+                </div>
+
             </div>
         </main>
 
