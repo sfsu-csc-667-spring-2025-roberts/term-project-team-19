@@ -59,7 +59,7 @@
                                 <p>Status: <%= mygames.status%></p>
                             </div>
                             <div class="game-actions">
-                                <button class="join-game-button" data-game-id="<%mygames.id%>">Join Game</button>
+                                <button class="rejoin-game-button" data-game-id="<%=mygames.id%>">Rejoin Game</button>
                             </div>
                         <% }); %>
                         <% } else{ %>
@@ -136,6 +136,21 @@
                     };
                 }
             });
+        });
+
+        // Rejoin game button click
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.rejoin-game-button').forEach(button => {
+                const gameId = button.dataset.gameId;
+                console.log("Rejoin Game Button:", button);
+                if(gameId){
+                    button.onclick = async () => {
+                        window.location.href= `/games/${gameId}/lobby`;
+                    }
+                }else{
+                    console.error("No gameId:", gameId);
+                }
+            })
         });
 
         // create game button click handler

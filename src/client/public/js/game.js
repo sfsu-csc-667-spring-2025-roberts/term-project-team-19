@@ -139,6 +139,29 @@ window.Game = {
             return null;
           }
         },
+        getMyGames: async () => {
+          console.log("In client/public/js/game.js");
+          console.log("Trying to getMyGames");
+          try {
+            const response = await fetch(
+              "http://localhost:3000/games/mygames",
+              {
+                method: "GET",
+                headers: auth.getAuthHeaders(),
+                credentials: "include",
+              },
+            );
+            console.log("Response:", response);
+            if (response.ok) {
+              return await response.json();
+            } else {
+              return await response.json();
+            }
+          } catch (error) {
+            console.error("Failed to getMyGames:", error);
+            return null;
+          }
+        },
         fetchUserCards: async (game_id, user_id) => {
           try {
             const response = await fetch(
